@@ -1,0 +1,230 @@
+\documentclass[12pt,spanish]{article}
+\usepackage[spanish]{babel}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{amsthm,thmtools}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{subcaption}
+\usepackage{adjustbox}
+\usepackage{multirow}
+\usepackage[hidelinks]{hyperref}
+\usepackage{caption}
+\usepackage{amsthm}
+\usepackage{multicol}
+\usepackage{float}
+\usepackage{amsfonts}
+\usepackage{titling}
+\usepackage{soul}
+\usepackage{listings}
+\usepackage{array}
+\graphicspath{ {./img/}}
+\selectlanguage{spanish}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage[a4paper,left=3cm,right=2cm,top=2.5cm,bottom=2.5cm]{geometry}
+
+\newenvironment{solution}{
+	\par
+	\textbf{Solución}
+	\par
+	\begin{center}
+}
+{
+	\end{center}
+}
+
+
+\title{Ingeniería de Servidores}
+\setlength{\droptitle}{10em}
+\author{Carlos Sánchez Páez}
+
+\makeindex
+\begin{document}
+
+
+\begin{titlepage}
+
+ \newlength{\centeroffset}
+ \setlength{\centeroffset}{-0.5\oddsidemargin}
+ \addtolength{\centeroffset}{0.5\evensidemargin}
+ \thispagestyle{empty}
+
+ \noindent\hspace*{\centeroffset}
+ \begin{minipage}{\textwidth}
+
+  \centering
+  \includegraphics[width=0.9\textwidth]{logo_ugr.jpg}\\[1.4cm]
+
+  \textsc{ \Large Ingeniería de Servidores\\[0.2cm]}
+  \textsc{GRADO EN INGENIERÍA INFORMÁTICA}\\[1cm]
+
+  {\Huge\bfseries Guión de prácticas\\}
+ \end{minipage}
+
+ \vspace{1.5cm}
+ \noindent\hspace*{\centeroffset}
+ \begin{minipage}{\textwidth}
+  \centering
+
+  \textbf{Autor}\\ {Carlos Sánchez Páez}\\[2.5ex]
+  \includegraphics[width=0.4\textwidth]{etsiit_logo.png}\\[0.1cm]
+  \vspace{1.5cm}
+  \includegraphics[width=0.15\textwidth]{atc.jpg}\\[0.1cm]
+  \vspace{1cm}
+  \textsc{Escuela Técnica Superior de Ingenierías Informática y de Telecomunicación}\\
+  \vspace{1cm}
+  \textsc{Curso 2017-2018}
+ \end{minipage}
+\end{titlepage}
+\thispagestyle{empty}
+\newpage
+\tableofcontents{}
+\newpage
+\listoffigures
+\thispagestyle{empty}
+\newpage
+
+\section{Práctica 1: Virtualización e instalación de Sistemas Operativos}
+
+\subsection{Sesión 1}
+
+\subsubsection{Tipos de arquitecturas}
+
+Un servidor es una máquina que se dedica a resolver peticiones. Hay varios tipos:
+\begin{itemize}
+  \item \textbf{Hosting dedicado}. Alguien monta su propio servidor y únicamente lo utiliza él.
+  \item \textbf{VPS (\textit{Virtual Private Server})}. Se utiliza la virtualización para proporcionar recursos dedicados (privados) al cliente a partir de un servidor con múltiples usuarios.
+  \item \textbf{\textit{Serverless}}. Se necesita un proveedor cloud (\textit{AWS, Azure, Google Cloud}...), que gestiona dinámicamente los recursos. Las aplicaciones se ejecutan al detectarse determinados eventos. Se cobra por ancho de banda utilizado, capacidad de disco duro, etc. La principal ventaja de esta arquitectura es la escalabilidad.
+\end{itemize}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.55\textwidth]{serverless.jpeg}
+  \vspace{0.5cm}
+  \includegraphics[width=0.55\textwidth]{vps.jpg}
+  \caption{Tipos de arquitecturas de servidor}
+\end{figure}
+
+Una \textbf{máquina virtual} es aquella en la que todo su \textit{hardware} está virtualizado, es decir, compartido con el host. Las principales ventajas de las MV son precio, encapsulamiento y flexibilidad. Realmente no son más que archivos.\\
+
+Un \textbf{contenedor} empaqueta una aplicación con sus correspondientes dependencias, consiguiendo así la máxima \textit{portabilidad}. Lo único que se necesita tener instalado en una máquina para ejecutar la aplicación es necesario contar con el hipervisor adecuado (por ejemplo, \textit{Docker}).\\
+
+Un \textbf{hipervisor} es un motor que se encarga de traducir las instrucciones de una máquina virtual (o contenedor) a llamadas al sistema. Algunos ejemplos de hipervisor son \textit{VirtualBox} o \textit{VMWare}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{contenedor_vs_vm.jpeg}
+  \caption{Diferencias entre contenedor y máquina virtual}
+\end{figure}
+Podríamos realizar una analogía diciendo que las máquinas virtuales son procesos (encapsulados, no pueden acceder entre ellos) y los contenedores son hebras (sí que pueden comunicarse).
+
+\subsubsection{RAID}
+
+RAID (\textit{\textbf{R}edundant \textbf{A}rray of \textbf{I}ndependent/\textbf{I}nexpensive} \textbf{D}isks) es una tecnología que utiliza varias unidades de almacenamiento entre las que se replican los datos. Existen varios tipos de RAID:
+\begin{itemize}
+  \item \textbf{RAID0}. En este modelo no hay réplica. Los datos se distribuyen equitativamente entre ambos volúmenes.
+  \item \textbf{RAID1}. Los datos se copian en el otro disco (espejo).
+  \item \textbf{RAID2,3,4} no se usan en la actualidad.
+  \item \textbf{RAID5}. Implementa bloques de paridad como medida de redundancia. Puede fallar un disco como máximo.
+  \item \textbf{RAID6}. Implementa doble paridad. Pueden fallar dos discos como máximo.
+  \item \textbf{RAID0+1,RAID1+0}. Se anidan ambos tipos de RAID.
+\end{itemize}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.2\textwidth]{raid0.png}
+  \hspace{0.5cm}
+  \includegraphics[width=0.2\textwidth]{raid1.png}
+  \\
+  \includegraphics[width=0.4\textwidth]{raid5.png}
+  \hspace{0.5cm}
+  \includegraphics[width=0.4\textwidth]{raid6.png}
+  \\
+  \includegraphics[width=0.4\textwidth]{raid01.png}
+  \hspace{0.5cm}
+  \includegraphics[width=0.4\textwidth]{raid10.png}
+  \caption{Tipos de RAID}
+\end{figure}
+
+\newpage
+
+\subsubsection{LVM}
+LVM (\textit{\textbf{L}ogical \textbf{V}olume \textbf{M}anager}) provee abstracción sobre el almacenamiento físico y el sistema de ficheros. Sus mayor ventaja es la flexibilidad: podemos incorporar nuevas unidades de almacenamiento \textit{en caliente} (sin parar el sistema) de forma sencilla. LVM está compuesto por:
+\begin{itemize}
+  \item Volumen físico (\textit{Physical Volume}, \textbf{PV}). Es un dispositivo de almacenamiento (HDD, partición, RAID...).
+  \item Grupo de volúmenes (\textit{Volume Group}, \textbf{VG}). Es el centro de LVM. Está formado por uno o más PV. Para aumentar su espacio sólo hay que añadir más volúmenes físicos, siendo esto transparente para los sistemas de archivos, procesos o usuarios.
+  \item Volumen lógico (\textit{Logical Volume}, \textbf{LV}). Es el "producto final", es decir, dispositivos que usaremos para crear sistemas de ficheros. Podríamos decir que son las particiones.
+\end{itemize}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.65\textwidth]{lvm.png}
+  \caption{Arquitectura LVM}
+\end{figure}
+\newpage
+\subsubsection{Instalación de Ubuntu Server con RAID1}
+\begin{enumerate}
+  \item Descargamos la ISO desde \href{http://atcproyectos.ugr.es/esriie/ubuntu-16.04.5-server-amd64.iso}{aquí}.
+  \item Creamos una máquina virtual con 1024MB RAM y dos discos duros VDI reservados dinámicamente de 10GB cada uno. Por último, montamos la ISO en el controlador IDE.
+  \item  Arrancamos la máquina, marcamos idioma español y procedemos a la instalación.
+  \item Elegimos España y la distribución de teclado Spanish/Spanish.
+	\item Dejamos el nombre de la máquina en "ubuntu" y establecemos el nombre de usuario con nuestras iniciales. La clave será \textit{practicas,ISE}.
+	\item No ciframos la carpeta personal, ya que usaremos FDE (\textit{Full Disk Encryption}).
+	\item Aceptamos la zona horaria propuesta.
+	\item Elegimos particionado manual.
+	\item Damos Enter en ambos discos para crear las tablas de particiones.
+	\item Comenzamos configurando RAID (\textit{Configurar RAID por software}).
+	\item Creamos dispositivo MD (\textit{Multiple Devices}), elegimos RAID1, establecemos 2 discos en uso y 0 vacíos, los seleccionamos y damos a terminar.
+	\item Pasamos a configurar LVM (\textit{Configurar el Gestor de Volúmenes Lógicos (LVM)}).
+	\item Creamos el grupo de volúmenes, con nombre \textit{Servidor} y elegimos \textit{/dev/md0}.
+	\item Creamos ahora los volúmenes lógicos sobre Servidor (\textit{swap} (1024MB),\textit{arranque} (200MB),\textit{hogar} (800MB) y \textit{raíz} (resto)). Por último, damos a terminar.
+	\item Pasamos a la configuración del cifrado (\textit{Configurar los volúmenes cifrados}).
+	\item Damos a \textit{Create encrypted volumes} y seleccionamos todos menos \textit{arranque} (si lo encriptamos no podremos arrancar el sistema).
+	\item Mantenemos los parámetros predeterminados, por lo que elegimos \textit{Se ha terminado de definir la partición} en todos los casos.
+	\item Damos \textit{Sí} a mantener la distribución existente, \textit{Finish} y establecemos la clave \textit{practicas,ISE} en todos los volúmenes.
+	\item Por último, vamos a formatear los volúmenes y asignar los puntos de montaje. Para ello, elegimos las particiones (marcadas con el símbolo \textbf{#}) \textit{arranque}, \textit{hogar} y \textit{raíz}. Seleccionamos \textit{Utilizar como: sistema de ficheros ext4 transaccional} y asignamos los puntos de montaje \textit{/boot}, \textit{/home} y \textit{/} respectivamente.
+	\item Para la partición \textit{swap}, elegimos \textit{Utilizar como: área de intercambio}.
+	\item Finalizamos el particionado y esperamos.
+	\item Dejamos en blanco el campo de proxy y elegimos la opción \textit{Sin actualizaciones automáticas}.
+	\item Dejamos seleccionado \textit{Standard system utilities} y pulsamos Enter.
+	\item Instalamos en cargador de arranque en cualquier disco, por ejemplo, \textit{/dev/sda}.
+
+\end{enumerate}
+
+\subsubsection{Configuración de red}
+
+
+\section{Preguntas de examen}
+\subsection{Práctica 1}
+\begin{enumerate}
+  \item Si monto un RAID0 y un RAID1 con 2 HDD de 10GB, ¿cuánto espacio tengo disponible?
+  \begin{solution}
+    \begin{itemize}
+      \item RAID0: 20GB, ya que no hay redundancia.
+      \item RAID1: 10GB, ya que los datos se replican.
+    \end{itemize}
+  \end{solution}
+  ¿Y si uso un HDD de 10GB y otro de 50GB?
+  \begin{solution}
+    \begin{itemize}
+      \item RAID0: 60GB.
+      \item RAID1: 10GB. Si tomáramos más espacio no podría replicarse.
+    \end{itemize}
+  \end{solution}
+  \item Disponemos de un sistema con particiones \textit{home}, \textit{swap}, \textit{boot} y \textit{root}. Sólo podemos encriptar una de ellas. ¿Cuál elegirías?
+  \begin{solution}
+    SWAP, ya que contiene datos de la RAM, como claves, archivos de las aplicaciones, etc.
+  \end{solution}
+	\item ¿Qué diferencias hay entre \textit{EXT2} y \textit{EXT4}?
+	\begin{solution}
+		\textit{EXT4}, a diferencia de \textit{EXT2}, admite \textit{journaling}, es decir, un diario que permite restablecer los datos anteriores a una transacción en caso de que esta falle. Esta técnica permite al sistema de archivos volver a un estado coherente si se produce un corte de electricidad o cualquier otro fallo durante una transacción.
+	\end{solution}
+\end{enumerate}
+
+
+
+
+\end{document}
