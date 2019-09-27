@@ -20,6 +20,8 @@
 \usepackage{soul}
 \usepackage{listings}
 \usepackage{array}
+\usepackage[framemethod=tikz]{mdframed}
+
 \graphicspath{ {./img/}}
 \selectlanguage{spanish}
 \usepackage[utf8]{inputenc}
@@ -43,6 +45,14 @@
 
 \makeindex
 \begin{document}
+\definecolor{light-gray}{gray}{0.95}
+\lstset{columns=fullflexible,basicstyle=\ttfamily}
+\surroundwithmdframed[
+  hidealllines=true,
+  backgroundcolor=light-gray,
+  innerleftmargin=0pt,
+  innertopmargin=0pt,
+  innerbottommargin=0pt]{lstlisting}
 
 
 \begin{titlepage}
@@ -185,7 +195,7 @@ LVM (\textit{\textbf{L}ogical \textbf{V}olume \textbf{M}anager}) provee abstracc
 	\item Damos a \textit{Create encrypted volumes} y seleccionamos todos menos \textit{arranque} (si lo encriptamos no podremos arrancar el sistema).
 	\item Mantenemos los parámetros predeterminados, por lo que elegimos \textit{Se ha terminado de definir la partición} en todos los casos.
 	\item Damos \textit{Sí} a mantener la distribución existente, \textit{Finish} y establecemos la clave \textit{practicas,ISE} en todos los volúmenes.
-	\item Por último, vamos a formatear los volúmenes y asignar los puntos de montaje. Para ello, elegimos las particiones (marcadas con el símbolo \textbf{#}) \textit{arranque}, \textit{hogar} y \textit{raíz}. Seleccionamos \textit{Utilizar como: sistema de ficheros ext4 transaccional} y asignamos los puntos de montaje \textit{/boot}, \textit{/home} y \textit{/} respectivamente.
+	\item Por último, vamos a formatear los volúmenes y asignar los puntos de montaje. Para ello, elegimos las particiones (marcadas con el símbolo \textbf{\#}) \textit{arranque}, \textit{hogar} y \textit{raíz}. Seleccionamos \textit{Utilizar como: sistema de ficheros ext4 transaccional} y asignamos los puntos de montaje \textit{/boot}, \textit{/home} y \textit{/} respectivamente.
 	\item Para la partición \textit{swap}, elegimos \textit{Utilizar como: área de intercambio}.
 	\item Finalizamos el particionado y esperamos.
 	\item Dejamos en blanco el campo de proxy y elegimos la opción \textit{Sin actualizaciones automáticas}.
@@ -196,6 +206,36 @@ LVM (\textit{\textbf{L}ogical \textbf{V}olume \textbf{M}anager}) provee abstracc
 
 \subsubsection{Configuración de red}
 
+Necesitamos configurar la red de forma que las máquinas puedan comunicarse entre sí,con el \textit{host} y con el exterior. Para ello, seguiremos los siguientes pasos:
+\begin{enumerate}
+	\item Crear una red sólo-anfitrión.
+	\begin{enumerate}
+		\item En VirtualBox (¡no en la máquina!) damos a Archivo-Administrador de red anfitrión.
+		\item Seleccionamos Crear y comprobamos que la IPv4a sea 192.168.56.1. En caso contrario, la modificamos.
+		\item En la configuración de la máquina virtual Ubuntu, habilitamos el adaptador 2 (conectado a adaptador sólo-anfitrión)
+	\end{enumerate}
+	\item Añadir la interfaz y activarla.
+	\begin{enumerate}
+		\item Arrancamos la máquina.
+		\item Editamos el archivo de interfaces mediante \textit{sudo nano /etc/network/interfaces}.
+		\item Añadimos el siguiente código:
+		\begin{lstlisting}
+			# Host-only interface
+			auto enp0s8
+			iface enp0s8 inet static
+			address 192.168.56.105
+		\end{lstlisting}
+		\item Salimos y guardamos.
+		\item Activamos la interfaz con \textit{sudo ifup enp0s8}.
+		\item Ejecutamos \textit{ip addr} y comprobamos que la interfaz tiene asignada la IP que configuramos (192.168.56.105).
+	\end{enumerate}
+	\item Comprobar que funciona.
+		\begin{enumerate}
+			\item Desde nuestro host, abrimos una terminal y ejecutamos \textit{ping 192.168.56.105 -c 5}. Deberíamos recibir las 5 respuestas.
+			\item Desde la máquina virtual ejecutamos \textit{ping 192.168.56.1 -c 5}. Deberíamos recibir las 5 respuestas.
+		\end{enumerate}
+
+\end{enumerate}
 
 \section{Preguntas de examen}
 \subsection{Práctica 1}
@@ -220,7 +260,7 @@ LVM (\textit{\textbf{L}ogical \textbf{V}olume \textbf{M}anager}) provee abstracc
   \end{solution}
 	\item ¿Qué diferencias hay entre \textit{EXT2} y \textit{EXT4}?
 	\begin{solution}
-		\textit{EXT4}, a diferencia de \textit{EXT2}, admite \textit{journaling}, es decir, un diario que permite restablecer los datos anteriores a una transacción en caso de que esta falle. Esta técnica permite al sistema de archivos volver a un estado coherente si se produce un corte de electricidad o cualquier otro fallo durante una transacción.
+		\textit{EXT4}, a diferencia de \textit{EXT2}, admite \textit{journaling}, es decir, un diario que permite restablecer los datos anteriores a una transacción en caso de que ésta falle. Esta técnica permite al sistema de archivos volver a un estado coherente si se produce un corte de electricidad o cualquier otro fallo durante una transacción.
 	\end{solution}
 \end{enumerate}
 
