@@ -9,9 +9,12 @@
 \usepackage{amsmath}
 \usepackage{subcaption}
 \usepackage{adjustbox}
+\usepackage{amsmath}
+\usepackage{centernot}
 \usepackage{multirow}
 \usepackage[hidelinks]{hyperref}
 \usepackage{caption}
+\usepackage{eurosym} % para el euro
 \usepackage{amsthm}
 \usepackage{multicol}
 \usepackage{float}
@@ -20,6 +23,8 @@
 \usepackage{soul}
 \usepackage{listings}
 \usepackage{array}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows, chains, calc,positioning,fit,decorations.pathreplacing}
 \usepackage[framemethod=tikz]{mdframed}
 
 \graphicspath{ {../img/}}
@@ -160,8 +165,214 @@ Hay varios tipos de servidores:
 
 \subsection{Fundamentos de la Ingeniería de Servidores}
 
+Un servidor se compone de:
+\begin{itemize}
+	\item Recursos físicos (placa base, memoria, CPU, etc.).
+	\item Recursos lógicos (sistema operativo, aplicaciones).
+	\item Recursos humanos (administración).
+	\item Requisitos funcionales (prestaciones, seguridad, mantenimiento, disponibilidad, extensibilidad, escalabilidad, coste, fiabilidad...)
+\end{itemize}
+
+Las \textbf{prestaciones} cuantifican la velocidad con la que se realiza una determinada cantidad de trabajo o carga (\textit{workload}). Aquel servidor que realiza la misma carga de trabajo en menor tiempo es el que mayores prestaciones tiene.\\
+Las medidas fundamentales para medir las prestaciones de un servidor son:
+\begin{itemize}
+	\item \textbf{Tiempo de respuesta} o \textbf{latencia}. Tiempo desde que se solicita una tarea al servidor hasta que finaliza. Por ejemplo: tiempo de ejecución de un programa, de acceso al disco, etc.
+	\item \textbf{Productividad} (\textit{throughput}) o \textbf{ancho de banda} (\textit{bandwidth}). Cantidad de trabajo realizado por el servidor por unidad de tiempo. Por ejemplo: programas ejecutados por hora o páginas por hora servidas en el caso de un servidor web.
+\end{itemize}
+
+Los principales elementos que afectan a las prestaciones de un servidor son los siguientes:
+\begin{itemize}
+	\item Hardware del sistema (características y configuración).
+	\item Parámetros del sistema operativo (configuración de memoria virtual, políticas de planificación...) y diseño de los programas (acceso a E/S, fallos de caché...).
+	\item Actualización de componentes (reemplazar por dispositivos más rápidos) y configuración de dispositivos.
+	\item Ajuste o sintonización del SO y los programas.
+	\item Distribución de carga (\textit{load balancing}): dar mayor carga a los dispositivos más rápidos.
+\end{itemize}
+
+\subsubsection{Requisitos funcionales de un servidor}
+
+\begin{itemize}
+	\item \textbf{Disponibilidad} (\textit{Availability}). Un servidor está disponible si está en estado operativo.\\ El tiempo de inactividad (\textit{downtime}) es la cantidad de tiempo en la que el sistema no está disponible. Puede ser de dos tipos:
+	\begin{itemize}
+		\item Planificado (actualizaciones de hardware o software que no se puedan realizar en caliente).
+		\item No planificado (causa de algún fallo). Si el sistema tiene \emph{alta disponibilidad} será \emph{tolerante a fallos}.
+	\end{itemize}
+	\newpage
+	Algunas soluciones para aumentar la disponibilidad son:
+	\begin{itemize}
+		\item Reemplazo en caliente de los componentes (\textit{hot-swapping}).
+		\item Sistemas redundantes de discos (\textit{RAID}), alimentación y red.
+		\item Sistemas distribuidos.
+	\end{itemize}
+	\item \textbf{Fiabilidad} (\textit{Reliability}). Un sistema es fiable cuando realiza su actividad sin errores. El \textbf{MTTF} (\textit{\textbf{M}ean \textbf{T}ime \textbf{T}o \textbf{F}ailure}) es el tiempo medio que tiene un sistema hasta que ocurre un error. Los mecanismos para asegurar la fiablilidad son la comprobación (\textit{checksums}, bits de paridad, etc.)
+	\item \textbf{Seguridad}. Un servidor debe ser seguro ante:
+	\begin{itemize}
+		\item La incursión de individuos no autorizados (\textit{confidencialidad}).
+		\item La corrupción o alteración no autorizada de datos (\textit{integridad}).
+		\item Las interferencias (ataques) que impidan el acceso a los recursos.
+	\end{itemize}
+	Las principales soluciones son la encriptación de datos, el uso de cortafuegos y la autenticación segura de usuarios.
+	\item \textbf{Extensibilidad-expansibilidad}. Es la facilidad que ofrece el sistema para aumentar sus características o recursos (tener bahías libres para discos duros o memoria, uso de sistemas operativos modulares, uso de interfaces de entrada y salida estándar, etc.). Cualquier solución que facilite la escalabilidad facilita también la extensibilidad.
+	\item \textbf{Escalabilidad}. Un servidor es escalable si sus prestaciones pueden aumentar significativamente ante un incremento significativo de la carga. Las soluciones más usadas son la virtualización, la programación paralela y la tecnología \textit{cloud}. Todos los sistemas escalables son extensibles (pero no al revés).
+	\item \textbf{Mantenimiento}. Son las acciones que sirven para prolongar el funcionamiento correcto del sistema. Es importante que el servidor sea fácil de mantener (sistema operativo actualizado, garantía de componentes, copias de seguridad, etc.).
+	\item \textbf{Coste}. Debemos escoger un diseño que sea asequible y se ajuste al presupuesto teniendo en cuenta el coste hardware, software, de actualizaciones, de personal, de proveedores de red, de alquiler de local y de \textbf{eficiencia energética}. La eficiencia energética es clave ya que reduce en gran cantidad los costes (consumo de potencia, refrigeración) y además ayuda a preservar el medio ambiente. Las soluciones más comunes son:
+	\begin{itemize}
+		\item Ajuste automático de potencia de los componentes según la carga.
+		\item \textit{Free cooling}, aprovechamiento de las bajas temperaturas exteriores para tener refrigeración gratuita.
+		\item Fusionar varios servidores con poco uso en un único servidor.
+	\end{itemize}
+
+\end{itemize}
+
+\subsection{Comparación conjunta entre prestaciones y coste}
+
+El computador de mejores prestaciones (el más rápido) para un determinado conjunto de programas será el que lo ejecute en menor tiempo.\\
+
+\subsubsection{Tiempos de ejecución mayores o menores}
+
+Sea $t_A$ el tiempo de ejecución de un programa en la máquina A (ídem para $t_B$).
+\begin{itemize}
+	\item $t_A$ es $\frac{t_A}{t_B}$ veces $t_B$. Por ejemplo, si $t_A=10s$ y $t_B=5s$, $t_A$ es $\frac{10}{5}=2$ veces $t_B$ (el doble).
+	\item Igualmente, $t_B$ es $\frac{5}{10}=0.5$ veces $t_A$ (la mitad).
+\end{itemize}
+
+El \textbf{cambio relativo de $t_A$ con respecto a $t_B$}; $\Delta t_{A,B}(\%)$ viene dado por:
+\[
+t_A=t_B + \frac{\Delta t_{A,B}(\%)}{100} * t_B
+\]
+Es decir, es el porcentaje que le falta a $t_B$ para ser $t_A$.\\
+En el ejemplo anterior el cambio relativo de $t_A$ con respecto a $t_B$ es del $100\%$. Es decir, a $t_B$ le falta un $100\%$ de sí mismo (el doble) para llegar a ser $t_A$.\\
+De igual forma, el cambio relativo de $t_B$ con respecto a $t_A$ es del $-50\%$ (a $t_A$ le sobra la mitad para ser $t_B$).\\
+Usando el lenguaje común podríamos traducir los resultados en:
+\begin{itemize}
+	\item $t_A$ es un $100\%$ mayor que $t_B$ y $t_B$ es un $50\%$ menor que $t_A$.
+	\item $t_A$ es 2 veces mayor que $t_B$ (¡ojo! ¡¡"1 vez mayor" significa igual!!).
+\end{itemize}
+
+La velocidad de ejecución de una máquina será inversamente proporcional al tiempo que tarda en ejecutarse. Teniendo ésto en cuenta podemos definir la aceleración (\textit{speedup}) de A con respecto a B de la siguiente forma:
+\[
+S_B(A)=\frac{v_A}{v_B}=\frac{t_B}{t_A}
+\]
+El cambio relativo de $v_A$ con respecto de $v_B$ (es decir, el porcentaje de cambio en velocidad al reemplazar A por B) viene dado por:
+\[
+\Delta v_{A,B}(\%)=(S_B(A) -1) * 100
+\]
+
+Supongamos que para un programa, $t_A=36s$ y $t_B=45s$.\\
+La ganancia de velocidad de A con respecto a B sería:
+\[
+S_B(A)=\frac{v_A}{v_B}=\frac{t_B}{t_A}=\frac{45 s}{36 s}=1.25
+\]
+El cambio relativo de $v_A$ con respecto a $v_B$ (es decir, el porcentaje de mejora) viene dado por:
+\[
+\Delta v_{A,B}(\%)=(S_B(A)-1) * 100 = (1.25 - 1) * 100 = 0.25 * 100 = 25\%
+\]
+Usando el lenguaje común diríamos que:
+\begin{itemize}
+	\item A es 1.25 veces más rápida que B.
+	\item A es un 25\% más rápida que B
+\end{itemize}
+De igual forma:
+\[
+S_A(B)=\frac{t_A}{t_B}=\frac{36 s}{45 s}=0.8
+\]
+\[
+\Delta v_{B,A}(\%)=(S_A(B)-1) * 100 = (0.8 - 1) * 100 = -0.2 * 100 = -20\%
+\]
+Es decir, B es un $20\%$ más lenta que A.
+
+\begin{center}
+	¡¡Ojo!! \\
+	A es un $x\%$ más rápida que B $\centernot\implies$ B es un $x\%$ más lenta que A.\\
+	Por ejemplo, 10 es un $100\%$ mayor que 5 $\centernot\implies$ 5 es un $100\%$ menor que 10
+\end{center}
+
+Supongamos que en el ejemplo anterior el computador A cuesta 625 \textup{\euro} y el computador B, 550 \textup{\euro}.
+\begin{itemize}
+	\item A es $\frac{625}{550}=1.14$ veces más caro que B (un $14\%$ más caro).
+	\item ¿Cuál ofrece mejor relación prestaciones/precio para nuestro programa?
+	\[
+		\frac{Prestaciones_A}{Coste_A}=\frac{v_A}{Coste_A} \propto \frac{\frac{1}{t_A}}{Coste_A}=\frac{\frac{1}{36 s}}{625 \textup{\euro}} = 4.4 * 10^{-5} \frac{s^{-1}}{\textup{\euro}}
+	\]
+
+	\[
+		\frac{Prestaciones_B}{Coste_B}=\frac{v_B}{Coste_B} \propto \frac{\frac{1}{t_B}}{Coste_B}=\frac{\frac{1}{45 s}}{550 \textup{\euro}} = 4.0 * 10^{-5} \frac{s^{-1}}{\textup{\euro}}
+	\]
+	Pasamos ahora a comparar ambas relaciones:
+	\[
+	\frac{\frac{Prestaciones_A}{Coste_A}}{\frac{Prestaciones_B}{Coste_B}} = \frac{4.4 * 10^{-5}}{4.0 * 10^{-5}} = 1.1
+	\]
+	\item Por tanto, el computador A presenta una mayor relación prestaciones/coste que B (un 1.1 mayor $=$ un $10\%$ mayor) para nuestro programa.
+\end{itemize}
 
 
+\subsection{Límites en la mejora del tiempo de respuesta}
+
+La mejora dekl tiempo de respuesta no es ilimitada, por lo que debemos saber hacia dónde dirigir los esfuerzos. Por ejemplo, si un programa utiliza la CPU en un $80\%$ del tiempo y la impresora en un $20\%$ debemos centrarnos en mejorar la CPU. El planteamiento sería el siguiente:
+\begin{itemize}
+	\item Un sistema tarda un tiempo $T_{original}$ en ejecutar un programa monohebra.
+	\item Mejoramos el sistema reemplazando un componente por otro $k$ veces más rápido.
+	\item Este comonente se utilizaba durante una fracción $f$ de $T_{original}$ (si $f=1$, el componente se utilizaba el $100\%$ del tiempo).
+	\item ¿Qué ganancia en prestaciones (\textit{speedup}) hemos conseguido con el cambio?
+\end{itemize}
+\newpage
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}[arrow/.style = {thick,-stealth}]
+		\tikzset{set/.style={draw,rectangle,inner sep=0pt,align=center}}
+		\node[fit={(0,0) (5,1.5)}, inner sep=0pt, draw=black, thick, fill=blue!20, text centered] (nousado1) { Recurso no utilizado \\($1-f * t_O$)};
+		\node[fit={(5,0) (15,1.5)}, inner sep=0pt, draw=black, thick, fill=green!20, text centered] (usado1) {Recurso utilizado ($f * t_O$)};
+
+		\node[fit={(0,-5) (5,-3.5)}, inner sep=0pt, draw=black, thick, fill=blue!20, text centered] (nousado2) { Recurso no utilizado \\($1-f * t_O$)};
+		\node[fit={(5,-5) (10,-3.5)}, inner sep=0pt, draw=black, thick, fill=yellow!20, text centered] (usado2) {Recurso utilizado ($\frac{f * t_O}{k}$)};
+
+		\draw [arrow] (5,0) -- (5,-3.5);
+		\draw [arrow] (15,0) -- node [below right] {$k$ veces más pequeño} (10,-3.5);
+
+		\draw [decorate,decoration={brace,amplitude=10pt, raise=2.5pt}]	(0,1.5) -- (15,1.5) node [black, midway, sloped, above=0.5cm] {Tiempo original $t_O$};
+
+		\draw [decorate,decoration={brace,amplitude=10pt, raise=2.5pt, mirror}]	(0,-5) -- (10,-5) node [black, midway, sloped, below=0.5cm] {Tiempo mejorado $t_M$};
+
+	\end{tikzpicture}
+	\caption{Tiempos original y mejorado}
+\end{figure}
+
+\subsubsection{Ley de Amdahl}
+¿Cuál es la ganancia en velocidad ($S$) del sistema después de mejorar $k$ veces un componente?
+\begin{figure}[H]
+	\begin{equation}
+		S=\frac{1}{1-f+\frac{f}{k}}
+	\end{equation}
+	\caption{Ley de Amdahl}
+\end{figure}
+Donde:
+\begin{itemize}
+	\item Si $f=0 \implies S=1$, por lo que no hay mejora en el sistema (el recurso no se usaba).
+	\item Si $f=1 \implies S=k$, el sistema mejora tantas veces como el componente (se usa siempre).
+	\item Si $f\to \infty \implies S \to \lim_{k \to \infty} S=\frac{1}{1-f}$
+\end{itemize}
+
+Veamos un ejemplo:\\
+La utilziación de un disco duro es del $60\%$ para un programa monohebra. ¿Cuál será la velocidad de ejecución si duplicamos la velocidad del disco?
+\[
+S=\frac{1}{1-f+\frac{f}{k}} \implies S=\frac{1}{1-0.6+\frac{0.6}{2}}=1.43
+\]
+Por tanto, el sistema es $1.43$ veces más rápido (un $43\%$ más rápido que antes).\\
+Si sólo nos centráramos en mejorar el disco, la ganancia máxima que podríamos obtener sería:
+\[
+S_{max}=\lim_{k \to \infty}S=\frac{1}{1-f}=\frac{1}{1-0.6}=2.5
+\]
+Es decir, el sistema podría llegar a ser $2.5$ veces más rápido (un $150\%$ más rápido) que antes si sólo mejoramos el disco.
+
+\subsubsection{Generalización de la ley de Amdahl}
+
+Para $n$ mejoras, el \textit{speedup} vendría dado por:
+
+\[
+S=\frac{1}{(1-\sum_{i=1}^{n}f_i) + \sum_{i=1}^{n}\frac{f_i}{k_i}}
+\]
+
+También podemos calcular la aceleración con una sola mejora en cascada, teniendo en cuenta que debemos recalcular $f$ en cada paso.
 
 
 \section{Ejercicios resueltos}
