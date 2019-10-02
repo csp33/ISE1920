@@ -177,6 +177,38 @@ LVM (\textit{\textbf{L}ogical \textbf{V}olume \textbf{M}anager}) provee abstracc
   \caption{Arquitectura LVM}
 \end{figure}
 \newpage
+La estrictura a crear es la siguiente:
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}[arrow/.style = {thick,-stealth}, node distance=2cm]
+		\tikzset{set/.style={draw,rectangle,inner sep=0pt,align=center}}
+		\node[fit={(0,0) (2,1)}, inner sep=0pt, draw=black, thick, text centered] (sda) {sda};
+		\node[fit={(3,0) (5,1)}, inner sep=0pt, draw=black, thick, text centered] (sdb) {sdb};
+
+		\node[fit={(0,2) (2,3)}, inner sep=0pt, draw=black, thick, text centered] (sdapv) {sda};
+		\node[fit={(3,2) (5,3)}, inner sep=0pt, draw=black, thick, text centered] (sdbpv) {sdb};
+
+	\node[circle,above right of=sdapv, inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm, distance = 1cm] (cl) {cl};
+
+	\node[circle,above left of=cl, inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm, distance = 1cm] (/) {/};
+
+	\node[circle,above right of=cl, inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm, distance = 1cm] (swap) {swap};
+
+
+		\draw [decorate,decoration={brace,amplitude=10pt, raise=2.5pt, mirror}]	(6,0) -- (6,1) node [black,midway,xshift=1cm] {\footnotesize HDD};
+		\draw [decorate,decoration={brace,amplitude=10pt, raise=2.5pt, mirror}]	(6,2) -- (6,3) node [black,midway,xshift=1cm] {\footnotesize PV};
+		\draw [decorate,decoration={brace,amplitude=10pt, raise=2.5pt, mirror}]	(6,3.35) -- (6,4.35) node [black,midway,xshift=1cm] {\footnotesize VG};
+		\draw [decorate,decoration={brace,amplitude=10pt, raise=2.5pt, mirror}]	(6,4.7) -- (6,5.7) node [black,midway,xshift=1cm] {\footnotesize LV};
+
+		\draw [arrow] (sda) -- (sdapv);
+		\draw [arrow] (sdb) -- (sdbpv);
+		\draw [arrow] (sdapv) -- (cl);
+		\draw [arrow] (sdbpv) -- (cl);
+		\draw [arrow] (cl) -- (/);
+		\draw [arrow] (cl) -- (swap);
+
+	\end{tikzpicture}
+\end{figure}
 \subsubsection{Instalación de Ubuntu Server con RAID1}
 \begin{enumerate}
   \item Descargamos la ISO desde \href{http://atcproyectos.ugr.es/esriie/ubuntu-16.04.5-server-amd64.iso}{aquí}.
