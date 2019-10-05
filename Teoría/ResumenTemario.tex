@@ -373,6 +373,165 @@ S=\frac{1}{(1-\sum_{i=1}^{n}f_i) + \sum_{i=1}^{n}\frac{f_i}{k_i}}
 \]
 
 También podemos calcular la aceleración con una sola mejora en cascada, teniendo en cuenta que debemos recalcular $f$ en cada paso. Sin embargo, es mucho más sencillo aplicar el procedimiento del \hyperref[1.13]{\textbf{ejercicio 1.3}}.
+\newpage
+\section{Tema 2. Componentes hardware de un servidor}
+
+\subsection{Placa base (\textit{Motherboard})}
+Es la tarjeta de circuito impreso (\textit{PCB}) que interconecta los distintos componentes.
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{mobos.png}
+	\caption{Dos placas base}
+\end{figure}
+\subsubsection{Tarjeta de cirtuito impreso}
+
+Está hecha de pistas de cobre rodeadas de un elemento aislante (fibra de vidrio con resina no inflamable).\\
+Actualmente, las placas base son multi-capa. A través de unos agujeros (vías) se realiza la conexión de una capa con otra.\\
+Las placas base tienen un tamaño (\textit{form factor}) estandarizado: \textit{Standard-ATX}, \textit{Micro-ATX}, \textit{Mini-ITX}...
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{pcb.jpg}
+	\caption{\textit{PCB} multicapa}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{moboformfactor.png}
+	\caption{Distintos factores de forma de placas base}
+\end{figure}
+
+\subsubsection{Componentes de una placa base}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\textwidth]{mobocomponents.png}
+	\caption{Componentes de una placa base}
+\end{figure}
+En el manual de la placa podremos ver un esquema simple de la localización de sus principales componentes:
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\textwidth]{mobocomponentsmanual.png}
+	\caption{Esquema de componentes de una placa base según el manual}
+\end{figure}
+
+\subsubsection{Montaje de los componentes de una placa base}
+
+Debemos tener mucho cuidado con la \textit{electricidad estática} de nuestro cuerpo. Si tenemos el cuerpo cargado y tocamos un elemento hardware podemos cortocircuitarlo y dañarlo. Para ello existen soluciones como descargar nuestro cuerpo tocando una gran superficie metálica o utilizar una pulsera de descarga (\textit{ESD, \textbf{E}lectro\textbf{S}tatic \textbf{D}ischarge}).
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.35\textwidth]{esd.jpg}
+	\caption{Pulsera de descarga}
+\end{figure}
+También es importante que manipulemos la máquina una vez que lleve un tiempo desenchufada. De esta forma, los condensadores se descargarán.
+
+\subsection{Fuente de alimentación}
+Se encarga de convertir la corriente alterna en continua.
+\begin{itemize}
+	\item Entrada: AC (220V-50Hz)
+	\item Salida: DC($\pm$5V, $\pm$12V, $\pm$3.3V)
+\end{itemize}
+La fuente de alimentación (\textit{PSU, \textbf{P}ower \textbf{S}upply \textbf{U}nit}) alimenta tanto la placa base como los periféricos. Su factor más importante es la potencia que entrega (250W, 500W...)
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.35\textwidth]{psu.jpg}
+	\caption{Fuente de alimentación}
+\end{figure}
+
+El voltaje $+5$V se utiliza normalmente cuando la máquina está en \textit{standby} para funciones como \textit{Wake On Lan} (encender cuando se solicite desde LAN).\\
+
+Los distintos elementos de un ordenador (por ejemplo la CPU) necesitan a veces un voltaje menor (por ejemplo, 0.8V). Para ello existe el \textit{VRM, \textbf{V}oltage \textbf{R}egulation \textbf{M}odule} o módulo regulador de voltaje. Está compuesto por bovinas, condensadores y transistores y su misión es proporcionar corriente continua de distintos voltajes a los componentes y \textbf{mantenerla}, lo que aporta estabilidad. Suele colocarse cerca de los elementos que alimenta, como la CPU o la RAM. En equipos modernos se ubica bajo un disipador.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.35\textwidth]{vrm.jpg}
+	\caption{Módulo de regulación de voltaje situado al lado del zócalo de la CPU}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.35\textwidth]{vrm_disip.jpg}
+	\caption{Módulo de regulación de voltaje bajo disipador}
+\end{figure}
+
+\subsection{Disipadores de calor}
+Son elementos que se utilizan para bajar la temperatura de un componente. Transfieren el calor desde el componente hacia el aire. Pueden ser de dos tipos:
+\begin{itemize}
+	\item Pasivo (no necesita energía para funcionar).
+
+	\item Activo (necesita energía, normalmente para un ventilador).
+\end{itemize}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.25\textwidth]{passive.jpg}
+	\caption{Disipador pasivo}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.25\textwidth]{fan.jpg}
+	\caption{Disipador activo (ventilador de chasis)}
+\end{figure}
+
+Para refrigerar la CPU se combinan ambos tipos (a un disipador pasivo se le añade un ventilador). Este ventilador es controlado mediante un conector de 4 pines (\textit{CPU\_FAN}), que permite, además de darle energía al ventilador, controlar y medir su velocidad en cada momnento.\\
+
+Para facilitar la transferencia de calor entre la CPU y el disipador pasivo se emplea \textit{pasta térmica}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.25\textwidth]{cpufan.jpg}
+	\caption{Disipador de CPU (combina activo y pasivo)}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.25\textwidth]{thermal.jpg}
+	\caption{Pasta térmica}
+\end{figure}
+
+
+\subsection{Zócalo de CPU (\textit{CPU Socket})}
+
+Este elemento se encarga de conectar el microprocesador (CPU) con la placa base de forma que la CPU pueda cambiarse sin necesidad de soldaduras. Existen varios tipos de zócalo:
+\begin{itemize}
+	\item \textit{PGA-ZIF, \textbf{P}in \textbf{G}rid \textbf{A}rray - \textbf{Z}ero \textbf{I}nsertion \textbf{F}orce}. La placa tiene agujeros en los que entran los pines de la CPU. Se utiliza una palanca para fijar la CPU al zócalo.
+	\item \textit{LGA, \textbf{L}and \textbf{G}rid \textbf{A}rray}. La CPU tiene contactos y la placa base una matriz de superficies conductoras, de forma que así los pines no pueden doblarse. La CPU se asegura mediante una placa de metal.
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.25\textwidth]{pgazif.jpg}
+	\caption{Socket \textit{PGA-ZIF}}
+\end{figure}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.25\textwidth]{lga.jpeg}
+	\caption{Socket \textit{LGA}}
+\end{figure}
+
+
+\subsubsection{Historia de las CPU}
+\begin{itemize}
+	\item El número de transistores ha ido creciendo exponencialmente, lo que hace que crezca el rendimiento.
+	\item Surge la Ley de Moore: cada dos años se duplica el número de transistores de un procesador.
+	\item La frecuencia de reloj subía exponencialmente, al igual que el consumo.
+	\item En 2005 se llegó a la barrera térmica (más calor haría que el chip se quemase). La frecuencia a la que se llegó fue de unos 4.2Ghz.
+	\item La competencia se centra actualmente en fabricar CPUs con más caché, más núcleos, controlador gráfico integrado, etc. (la lucha por la máxima frecuencia terminó).
+\end{itemize}
+
+\subsubsection{Intel Xeon}
+
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.25\textwidth]{cpuhistory.png}
+	\caption{Evolución histórica de las CPU}
+\end{figure}
+
+Hoy día, los principales fabricantes de CPU son IBM, Intel y AMD.
+
+
+
 
 
 \section{Ejercicios resueltos}
