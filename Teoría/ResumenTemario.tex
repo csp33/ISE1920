@@ -512,6 +512,7 @@ Este elemento se encarga de conectar el microprocesador (CPU) con la placa base 
 
 \subsubsection{Historia de las CPU}
 \begin{itemize}
+	\item La litografía de las CPUs (tamaño de los transistores) ha ido descendiendo exponencialmente, lo que hace que se puedan incorporar más transistores.
 	\item El número de transistores ha ido creciendo exponencialmente, lo que hace que crezca el rendimiento.
 	\item Surge la Ley de Moore: cada dos años se duplica el número de transistores de un procesador.
 	\item La frecuencia de reloj subía exponencialmente, al igual que el consumo.
@@ -526,15 +527,133 @@ Este elemento se encarga de conectar el microprocesador (CPU) con la placa base 
 \end{figure}
 
 Hoy día los principales fabricantes de CPU son IBM, Intel y AMD.
+
 \subsubsection{Intel Xeon}
 
+Son la división de procesadores Intel específica para servidores. Incorporan más soporte para multiprocesamiento, más tecnologías (como \textit{HyperThreading}, capaz de realizar la emulación de dos hebras mediante un único núcleo) y, en general, mayores prestaciones que las de un equipo sobremesa.\\
 
+Una CPU para servidores es capaz de coexistir con otra CPU en la misma placa. Sin embargo, esto acarrea un problema: si una CPU quiere acceder a un banco de memoria de la otra, necesita pasar por la otra CPU de forma muy rápida. Para solucionar esto surgen los \textit{UPI Link}, conexiones muy rápidas entre las CPUs. Cuantos más \textit{UPI Links} tenga una CPU, mayor velocidad de acceso tendrá.
 
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{upi.png}
+	\caption{Esquema de funcionamiento de los \textit{UPI Links} (flechas rojas)}
+\end{figure}
 
+Estos procesadores suelen soportar memoria ECC (\textit{Error Correcting Code}). Estas memorias incorporan un chip más (8 bits de redundancia para detectar si hay un error y corregirlo).
 
+\subsubsection{AMD (EPYC y Opteron)}
 
+Son los procesadores de AMD dedicados para servidores. El primer Opteron (presentado en 2003) fue el primer procesador que utilizaba el conjunto de instrucciones AMD x86-64. Por ser AMD la primera marca en lanzar un procesador x86-64, hoy día las distribuciones de 64 bits se siguen llamando AMD64.\\
 
+Actualmente hay tres grandes familias de CPUs AMD para servidores:
+\begin{itemize}
+	\item EPYC.
+	\item Opteron X-Series (basada en APU, \textit{Accelerated Processing Unit}). Incorporan CPU y GPU en un mismo chip, además de E/S (son un SoC, \textit{System on a Chip}). Intel también incorpora una GPU en muchos de sus procesadores. Usan la arquitectura x86
+	\item Opteron A-Series. Utilizan el repertorio ARM. Tienen un gran ratio prestaciones/consumo y son SoC con controladores PCI-e, Ethernet y SATA en el propio chip. Consumen menos de 30W.
+\end{itemize}
 
+\subsubsection{IBM Power (\textit{Performance Optimization With Enhanced RISC})}
+
+IBM fabrica grandes máquinas con muchas E/S. Esto aporta gran fiabilidad y redundancia.\\
+
+El procesador más destacado es el \textbf{IBM Power 9}. Sus características más importantes son que la memoria caché L3 es distribuida y que cada núcleo puede ejecutar hasta 8 hilos.
+
+\subsection{Ranuras para la memoria DRAM (\textit{Dynamic Random Access Memory})}
+
+Son los conectores donde se insertan los módulos de memoria principal, que tiene una velocidad inferior a la SRAM (caché) pero mayor densidad.\\
+
+La DRAM tiene las siguientes características:
+\begin{itemize}
+	\item Se comunica con la CPU mediante un bus de 64 bits.
+	\item RW: lectura y escritura.
+	\item Volátil: al apagar la máquina se elimina su contenido.
+	\item Necesita refresco: la información se desvanece si no se leen y reescriben los datos cada X tiempo. De esto se encarga un controlador dedicado.
+	\item Tiene una mayor densidad, ya que cada celda es mucho más simple.
+\end{itemize}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{ramslot.jpg}
+	\caption{Slot para memoria RAM}
+\end{figure}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{ramcells.png}
+	\caption{Celdas DRAM y SRAM}
+\end{figure}
+
+\subsubsection{Evolución histórica de la DRAM}
+\begin{itemize}
+	\item Se comienza con la \textbf{SDRAM}: Synchronous DRAM. Hay una señal de reloj para saber cuándo se podrá obtener el dato.
+	\item Tras las memorias síncronas, la competitividad se centra en obtener más datos por cada ciclo de reloj (DDR: 2 datos, DDR2, 4 datos, ..., DDR4: 8 datos).
+	\item Con el paso del tiempo el número de conectores de cada módulo ha ido aumentando.
+	\item El voltaje ha ido descendiendo con los años (lo que acarrea un menor consumo).
+	\item Desde DDR2 el bus de datos se ha estancado en 64 bits. Cada vez que la CPU pide un dato, se le mandan 64 bits. El bus se usa para lectura y escritura a la vez, por lo que no se pueden realizar las dos operaciones al mismo tiempo (\textit{half-duplex}).
+	\item El ancho de banda (\textit{throughput}, productividad) ha ido aumentando con los años.
+\end{itemize}
+
+Los tipos de memorias RAM son los siguientes:
+
+\begin{itemize}
+	\item \textit{SIPP: \textbf{S}inge \textbf{I}n-line \textbf{P}in \textbf{P}ackage}.
+	\item \textit{SIMM: \textbf{S}inge \textbf{I}n-line \textbf{M}emory \textbf{M}odule}.
+	\item \textit{DIMM: \textbf{D}ual \textbf{I}n-line \textbf{M}emory \textbf{M}odule}.
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\textwidth]{ramtypes.png}
+	\caption{Tipos de RAM}
+\end{figure}
+
+\subsubsection{Tipos de memoria DIMM}
+
+\begin{itemize}
+	\item DIMM o U-DIMM (\textit{Unbuffered DIMM}). No tienen registro (buffer). Son las que se utilizan en los PC.
+	\item EU-DIMM: son U-DIMM con ECC.
+	\item R-DIMM (\textit{Registered DIMM}). Hay un registro que almacena las señales de control, por lo que los módulos pueden tener mayor capacidad. Como consecuencia la latencia es mayor, ya que hay que acceder al registro antes que a la celda. Tienen ECC.
+	\item LR-DIMM (\textit{Load Reduced DIMM}). El registro almacena tanto las señales de control como el dato a manejar. Por tanto, son las que admiten más memoria. Son también las más caras. Tienen ECC.
+	\item SO-DIMM (\textit{Small Outline DIMM}). Son más pequeñas, ya que se utilizan en portátiles (tienen menos contactos).
+\end{itemize}
+
+\subsubsection{Canales y bancos de memoria DRAM}
+
+Un banco de memoria es un grupo de módulos que comparten canal de memoria. No se puede acceder en paralelo a dos módulos bajo un mismo banco, pero sí a distintos bancos.\\
+
+Los canales unen los bancos con la CPU.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\textwidth]{rambanks.png}
+	\caption{Canales (flechas) y banos (rodeados) de RAM}
+\end{figure}
+
+\subsubsection{Rangos de memoria RAM}
+
+Los rangos son agrupaciones de memoria que suman una palabra completa (64 bits o 72 si la memoria tiene ECC). La notación utilizada es la siguiente:
+\begin{itemize}
+	\item 1Rx4: módulo de un rango con chips de 4 bits ($\frac{64}{4}= 16$ chips por rango).
+	\item 2Rx8: módulo de dos rangos con chips de 8 bits ($\frac{64}{8}= 8$ chips por rango). Por ejemplo, un módulo con dos caras, cada una con un rango de 8 chips de 8 bits cada uno.
+\end{itemize}
+
+Algunas CPUs pueden no soportar un determinado número de rangos.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\textwidth]{ramranks.png}
+	\caption{Notación de rangos de RAM}
+\end{figure}
+
+En las especificaciones de una memoria DRAM suelen aparecer los siguientes campos:
+\begin{itemize}
+	\item DDR4-\textbf{2166}. Es la frecuencia efectiva. El módulo puede realizar 2666 MegaTransferencias por segundo. Como cada transferencia es de 64 bits (8 bytes): $2166 MTps * 8 B= 21328Mbps \approx$ 21300.
+	\item DDR4-PC4-\textbf{21300}. Viene del apartado anterior.
+	\item CL19. Latencia de acceso de 19 ciclos de reloj. Hemos de tener cuidado, ya que la velocidad depende tanto de la latencia como de la frecuencia.
+	\item \textit{x4 based}. Cada chip aporta 4 bits (por tanto, si la memoria tiene ECC, hay $\frac{72}{4}=18$ módulos en cada cara).
+	\item \textit{Dual Ranked}. En la otra cara hay otros 18 módulos.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Ejercicios resueltos}
 \subsection{Tema 1}
 \begin{enumerate}
