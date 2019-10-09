@@ -931,12 +931,6 @@ El esquema de red resultante es el siguiente:
 		\coordinate (hocenter) at ($(ubuntuho)!0.5!(centosho)$);
 		\draw [arrow,draw=red] (hocenter) -- (vboxnet0);
 
-
-	%	\draw [arrow,draw=red] (nat5) -- (nat6) node[midway,above] (ho) {Host-only};
-	%	\draw [arrow,draw=red] (nat6) -- (centos);
-	%	\draw [arrow,draw=red] (CENTER) -- (vboxnet0);
-
-
 		% IP addresses
 		\node[above right of =ubuntu] {192.168.56.105};
 		\node[above left of =centos] {192.168.56.115};
@@ -946,6 +940,8 @@ El esquema de red resultante es el siguiente:
 
 	\end{tikzpicture}
 \end{figure}
+
+Añadimos la interfaz sólo anfitrión porque las máquinas no pueden comunicarse entre ellas mediante NAT.
 
 
 
