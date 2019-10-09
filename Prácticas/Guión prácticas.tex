@@ -39,7 +39,16 @@
 {
 	\end{center}
 }
+% command \NOINDENT to be used in a group
+\newcommand*\NOINDENT{\@@par   % clear parshape parameters
+% fool list-awareness code (as supposedly in lstlisting, not checked)
+      \@totalleftmargin\z@ \@listdepth\z@ \rightmargin\z@
+}
 
+\lstset{
+  breaklines=true,
+  postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+}
 
 \title{Ingeniería de Servidores}
 \setlength{\droptitle}{10em}
@@ -278,6 +287,7 @@ La estructura a crear es la siguiente:
 	\begin{lstlisting}
 		$> sudo grub install /dev/sdb
 	\end{lstlisting}
+	\item Para finalizar, tomamos una instantánea de la máquina para poder volver a este estado (Instantánea $\implies$ Tomar)
 
 \end{enumerate}
 
@@ -322,6 +332,7 @@ Necesitamos configurar la red de forma que las máquinas puedan comunicarse entr
 	\item Elegimos Español (España).
 	\item En \textit{Destino de la instalación} elegimos el único disco disponible y damos a \textit{Listo} y a \textit{Empezar instalación}.
 	\item Creamos el usuario (iniciales como usuario y \textit{practicas,ISE} como clave). Establecemos también la contraseña del \textit{root} (\textit{practicas,ISE}).
+	\item Tomamos una instantánea de la máquina.
 \end{enumerate}
 
 La temática de esta sesión es la siguiente: necesitamos espacio en \textit{/var} pero no tenemos suficiente. Para dar solución a ello, tendremos que seguir estos pasos:
@@ -488,7 +499,7 @@ Mediante el administrador de VirtualBox añadimos un nuevo disco (VDI, 10GB, res
 	Para finalizar, comprobamos que ha ido bien mediante \textit{lvdisplay}.
 \end{enumerate}
 En este momento \textit{LVM} ha sido configurado completamente.
-\paragraph{Copiar los datos de \textit{/var} al nuevo volumen}
+\paragraph{Dar formato al nuevo volumen}
 \begin{enumerate}
 	\item Debemos comenzar creando un sistema de archivos en nuestro volumen lógico. Pero primero debemos ver cuál es el punto de montaje del mismo mediante \textit{lvdisplay} (campo \textit{LV Path}).
 	\item Ahora ejecutamos el comando para crear el sistema de archivos:
@@ -575,7 +586,240 @@ Actualmente no tenemos acceso al antiguo \textit{/var} (el que tenemos montado a
 	\begin{lstlisting}
 		#> rm -rf /var_old
 	\end{lstlisting}
+	\item Como de costumbre, tomamos la instantánea.
 \end{enumerate}
+
+
+\subsection{Sesión 3}
+
+Deberemos partir de una instalación fresca de CentOS (restauramos la instantánea correspondiente). El objetivo es configurar un RAID1 con cifrado. El esquema sería el siguiente:
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}[arrow/.style = {thick,-stealth}, node distance=2cm]
+		\tikzset{set/.style={draw,rectangle,inner sep=0pt,align=center}}
+
+		% HDDs
+		\node[fit={(-1,0) (2,1)}, inner sep=0pt, draw=black, thick, text centered,fill=blue!20] (sda1) {sda1};
+
+		\node[fit={(2,0) (5,1)}, inner sep=0pt, draw=black, thick, text centered,fill=blue!30] (sda2) {sda2};
+
+		\node[fit={(6,0) (9,1)}, inner sep=0pt, draw=black, thick, text centered,fill=blue!40] (sdb) {sdb};
+
+		\node[fit={(10,0) (13,1)}, inner sep=0pt, draw=black, thick, text centered,fill=blue!40] (sdc) {sdc};
+
+		% PVs
+		\coordinate (CENTER) at ($(sdb)!0.5!(sdc)$);
+
+		\node[above of=CENTER, inner sep=0pt, draw=black, thick, text centered,fill=green!20, minimum width = 2cm, minimum height=1cm] (md0) {md0};
+
+		\node[above of=sda2, inner sep=0pt, draw=black, thick, text centered,fill=green!20, minimum width = 2cm, minimum height=1cm] (sda2pv) {sda2};
+
+		% VGs
+		\node[ellipse,above of=sda2pv, inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm,fill=yellow!20] (cl) {cl};
+
+		\node[ellipse,above of=md0, inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm,fill=yellow!20] (pmraid1) {pmraid1};
+
+		% LVs
+		\node[ellipse,above left of=cl, inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm,fill=brown!25] (/lv) {/};
+
+		\node[ellipse,above right of=cl, inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm,fill=brown!25] (swaplv) {swap};
+
+		\node[ellipse,above of=pmraid1, inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm,fill=brown!25, node distance = 1.5cm] (newvar) {newvar};
+
+		% CRYPT
+		\node[rectangle, above of=newvar,inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm, minimum width=4.5cm,fill=violet!20] (newvarcrypt) {pmraid1-newvar\_crypt};
+
+		% FS
+		\node[diamond, above of=newvarcrypt,inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm,fill=red!20] (/var) {/var};
+
+		\node[diamond, above of=swaplv,inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm,fill=red!20, node distance=4cm] (swapfs) {swap};
+
+		\node[diamond, above of=/lv,inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm,fill=red!20, node distance=4cm] (/fs) {/};
+
+		\node[diamond, above of=sda1,inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm,fill=red!20, node distance=9.4cm] (bootfs) {/boot};
+
+
+		% Curly braces
+		\draw [decorate,decoration={brace,amplitude=10pt, raise=2.5pt, mirror}]	(14,0) -- (14,1) node [black,midway,xshift=1cm] {\footnotesize HDD};
+
+		\draw [decorate,decoration={brace,amplitude=10pt, raise=2.5pt, mirror}]	(14,2) -- (14,3) node [black,midway,xshift=1cm] {\footnotesize PV};
+
+		\draw [decorate,decoration={brace,amplitude=10pt, raise=2.5pt, mirror}]	(14,4) -- (14,5) node [black,midway,xshift=1cm] {\footnotesize VG};
+
+		\draw [decorate,decoration={brace,amplitude=10pt, raise=2.5pt, mirror}]	(14,5.5) -- (14,6.5) node [black,midway,xshift=1cm] {\footnotesize LV};
+
+		\draw [decorate,decoration={brace,amplitude=10pt, raise=2.5pt, mirror}]	(14,7.3) -- (14,8.6) node [black,midway,xshift=1.3cm] {\footnotesize CRYPT};
+
+		\draw [decorate,decoration={brace,amplitude=10pt, raise=2.5pt, mirror}]	(14,9) -- (14,10.5) node [black,midway,xshift=1cm] {\footnotesize FS};
+
+		% Arrows
+
+		\draw [arrow] (sda2) -- (sda2pv);
+		\draw [arrow] (sda2pv) -- (cl);
+		\draw [arrow] (cl) -- (/lv);
+		\draw [arrow] (cl) -- (swaplv);
+		\draw [arrow] (/lv) -- (/fs);
+		\draw [arrow] (sda1) -- (bootfs);
+		\draw [arrow] (swaplv) -- (swapfs);
+
+		\draw [arrow] (sdb) -- (md0);
+		\draw [arrow] (sdc) -- (md0);
+		\draw [arrow] (md0) -- (pmraid1);
+		\draw [arrow] (pmraid1) -- (newvar);
+		\draw [arrow] (newvar) -- (newvarcrypt);
+		\draw [arrow] (newvarcrypt) -- (/var);
+
+
+	\end{tikzpicture}
+\end{figure}
+
+Los pasos a seguir son los siguientes:
+\begin{enumerate}
+	\item Creación de RAID1.
+	\item Montar pila LVM añadiendo el cifrado.
+	\item Dar formato al volumen, copiar archivos, modificar \textit{fstab} y liberar espacio (igual que en la sesión anterior)
+\end{enumerate}
+
+\paragraph{Creación de RAID1}
+\begin{enumerate}
+	\item Mediante el administrador de VirtualBox añadimos dos discos VDI de 2GB cada uno.
+	\item Iniciamos la máquina y vemos que se hayan añadido correctamente mediante \textit{lsblk}. Deberíamos ver \textit{sdb} y \textit{sdc}.
+	\item Nos logueamos como superusuarios con \textit{su}.
+	\item Debemos instalar la herramienta \textit{mdadm} para gestionar la creación de un RAID software. Para ello, la instalamos:
+	\begin{lstlisting}
+		#> yum install -y mdadm
+	\end{lstlisting}
+	Al ejecutar el comando vemos que tenemos un error: no hay conexión a Internet.
+	\item Ejecutamos \textit{ip addr} para ver información sobre las interfaces. Vemos que no tenemos IP asignada. Levantamos la intefaz mediante:
+	\begin{lstlisting}
+		#> ifup enp0s3
+	\end{lstlisting}
+	Comprobamos otra vez con \textit{ip addr} que tenemos IP e instalamos \textit{mdadm}.
+	\item Creamos el RAID1 mediante la herramienta que acabamos de instalar. Mediante \textit{man} podemos ver que su sintaxis es:
+	\begin{lstlisting}[breaklines=true]
+		#> mdadm <modo> <dispositivo a crear> <tipo de RAID> <num. de dispositivos> <dispositivos>
+	\end{lstlisting}
+	En nuestro caso:
+	\begin{lstlisting}
+		#> mdadm --create /dev/md0 --level=1 --raid-devices=2 /dev/sdb /dev/sdc
+	\end{lstlisting}
+	Comprobamos mediante \textit{lsblk} que la creación se ha realizado.
+\end{enumerate}
+\paragraph{Pila LVM y cifrado}
+\begin{enumerate}
+	\item Comenzamos creando el PV:
+		\begin{lstlisting}[xleftmargin=-1.5cm]
+			#> pvcreate /dev/md0
+		\end{lstlisting}
+	Comprobamos con \textit{pvdisplay}
+	\item Seguimos con el VG. Creamos uno nuevo porque queremos que los datos se guarden exclusivamente en el RAID1. Si añadiéramos los dispositivos al VG anterior (\textit{cl}), los datos podrían estar en cualquier disco.
+	\begin{lstlisting}
+		#> vgcreate pmraid1 /dev/md0
+	\end{lstlisting}
+	Comprobamos con \textit{vgdisplay}
+	\item Pasamos al LV:
+		\begin{lstlisting}[xleftmargin=-1.5cm]
+			#> lvcreate -L 1G -n newvar pmraid1
+		\end{lstlisting}
+	Comprobamos con \textit{lvdisplay}
+	\item Ahora vamos al cifrado. Para ello utilizaremos \textit{LUKS, \textbf{L}inux \textbf{U}nified \textbf{K}ey \textbf{S}etup} mediante la herramienta \textit{cryptsetup}.
+	\begin{enumerate}
+		\item Comenzamos instalando el programa:
+			\begin{lstlisting}[xleftmargin=-3.8cm]
+				#> yum install -y cryptsetup
+			\end{lstlisting}
+			\item \textit{LUKS} toma un volumen desencriptado y lo divide en dos partes: la cabecera de \textit{LUKS} y el sistema de archivos encriptado:
+			\begin{figure}[H]
+				\centering
+				\includegraphics{luks.png}
+				\caption{Esquema de \textit{LUKS}}
+			\end{figure}
+			Por tanto, deberemos crear ambos elementos manualmente.
+			\item Lo primero que debemos hacer es entrar en modo de mantenimiento:
+			\begin{lstlisting}[xleftmargin=-3.8cm]
+				#> systemctl isolate runlevel1.target
+			\end{lstlisting}
+			\item Después creamos la cabecera dando el formato \textit{LUKS}. La sintaxis es la siguiente:
+			\begin{lstlisting}[xleftmargin=-3.8cm]
+				#> cryptsetup luksFormat <dispositivo>
+			\end{lstlisting}
+			En nuestro caso:
+			\begin{lstlisting}[xleftmargin=-3.8cm]
+				#> cryptsetup luksFormat /dev/pmraid1/newvar
+			\end{lstlisting}
+			Introducimos \textit{YES} (en mayúsculas) y establecemos la clave \textit{practicas,ISE}. Al ejecutar este comando borramos todos los datos del volumen.
+			\item Ahora creamos el sistema de archivos encriptado:
+			\begin{lstlisting}[xleftmargin=-3.8cm]
+				#> cryptsetup luksOpen <dispositivo> <nombre del SA>
+			\end{lstlisting}
+			Que en nuestro caso sería:
+			\begin{lstlisting}[xleftmargin=-3.8cm]
+				#> cryptsetup luksOpen /dev/pmraid1/newvar pmraid1-newvar_crypt
+			\end{lstlisting}
+			Introducimos la clave anteriormente definida y comprobamos que se ha creado mediante \textit{lsblk}.
+			\item Por último, modificamos el archivo \textit{/etc/crypttab}, que se encarga de asociar los volúmenes con formato \textit{LUKS} con sus respectivos sistemas de archivos cifrados. Su estructura es la siguiente:
+			\begin{lstlisting}[xleftmargin=-3.8cm]
+				<nombre del SA> UUID=<UUID del volumen LUKS> TYPE=none
+			\end{lstlisting}
+			El \textit{UUID, \textbf{U}niversal \textbf{U}nique \textbf{D}evice \textbf{ID}entifier} de un dispositivo es una forma de identificarlo unívocamente. Se obtiene mediante \textit{blkid}. Para no tener que copiarlo a mano, redirigimos la salida al archivo:
+			\begin{lstlisting}[xleftmargin=-3.8cm]
+				#> blkid | grep crypto >> /etc/crypttab
+			\end{lstlisting}
+			\item Ahora editamos el archivo mediante \textit{vi} y lo adaptamos a su formato. Debemos quitar las comillas del UUID. Debería quedar algo así:
+			\begin{lstlisting}[xleftmargin=-3.8cm]
+				pmraid1-newvar_crypt UUID=<UUID obtenido con grep sin comillas> TYPE=none
+			\end{lstlisting}
+	\end{enumerate}
+	\item Continuamos como en la práctica 2. Damos formato al volumen encriptado:
+	\begin{lstlisting}
+		#> mkfs -t ext4 /dev/mapper/pmraid1-newvar_crypt
+	\end{lstlisting}
+	\item Montamos el SA:
+	\begin{lstlisting}
+		#> mkdir /mnt/varCifr
+		#> mount /dev/mapper/pmraid1-newvar_crypt /mnt/varCifr
+	\end{lstlisting}
+	Comprobamos con \textit{mount}
+	\item Copiamos los archivos:
+	\begin{lstlisting}
+		#> cp -a /var/. /mnt/varCifr
+	\end{lstlisting}
+	\item Editamos \textit{/etc/fstab} añadiendo la siguiente línea:
+	\begin{lstlisting}
+		/dev/mapper/pmraid1-newvar_crypt /var ext4 defaults 0 0
+	\end{lstlisting}
+	\item Desmontamos el volumen:
+	\begin{lstlisting}[xleftmargin=-3.8cm]
+		#> umount /mnt/varCifr
+	\end{lstlisting}
+	Comprobamos con \textit{mount}.
+	\item Borramos los datos antiguos:
+	\begin{lstlisting}[xleftmargin=-3.8cm]
+		#> mv /var /varOld
+	\end{lstlisting}
+	\item Creamos \textit{/var} de nuevo:
+	\begin{lstlisting}[xleftmargin=-3.8cm]
+		#> mkdir /var
+	\end{lstlisting}
+	\item Restauramos el contexto:
+	\begin{lstlisting}[xleftmargin=-3.8cm]
+		#> restorecon /var
+	\end{lstlisting}
+	\item Montamos los sistemas de archivos de \textit{/etc/fstab}:
+	\begin{lstlisting}[xleftmargin=-3.8cm]
+		#> mount -a
+	\end{lstlisting}
+	Comprobamos con \textit{mount}.
+	\item Para finalizar, podemos ejecutar \textit{lsblk} para confirmar que todo está conforme al esquema.
+	\item Reiniciamos la máquina y debería pedirnos la clave del cifrado.
+	\item Tomamos una instantánea de la máquina.
+\end{enumerate}
+
+
+
+
+
 
 
 
@@ -610,7 +854,6 @@ Actualmente no tenemos acceso al antiguo \textit{/var} (el que tenemos montado a
 	\end{solution}
 	\item ¿Qué diferencias hay entre:
 	\begin{itemize}
-		\item \textit{cp -a /var /newvar}
 		\item \textit{cp -a /var/ /newvar}
 		\item \textit{cp -a /var/* /newvar}
 		\item \textit{cp -a /var/. /newvar}
