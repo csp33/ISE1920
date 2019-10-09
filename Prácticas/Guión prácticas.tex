@@ -750,7 +750,7 @@ Los pasos a seguir son los siguientes:
 			\end{lstlisting}
 			Introducimos \textit{YES} (en mayúsculas) y establecemos la clave \textit{practicas,ISE}. Al ejecutar este comando borramos todos los datos del volumen.
 			\item Ahora creamos el sistema de archivos encriptado:
-			\begin{lstlisting}[xleftmargin=-3.8cm]
+			\begin{lstlisting}[xleftmargin=-3.9cm]
 				#> cryptsetup luksOpen <dispositivo> <nombre del SA>
 			\end{lstlisting}
 			Que en nuestro caso sería:
@@ -877,55 +877,71 @@ El esquema de red resultante es el siguiente:
 
 \begin{figure}[H]
 	\centering
-	\begin{tikzpicture}[arrow/.style = {thick,-stealth}, node distance=2cm]
+	\begin{tikzpicture}[arrow/.style = {thick}, node distance=2cm]
 		\tikzset{set/.style={draw,rectangle,inner sep=0pt,align=center}}
 
 		% Host
-		\node[diamond,fit={(0,0) (1,1)}, inner sep=0pt, draw=black, thick, text centered,fill=violet!20] (host) {Host};
+		\node[diamond,fit={(0,0) (1,1)}, inner sep=0pt, draw=black, thick, text centered,align=center, fill=violet!20] (host) {Host};
 
-		% NAT
-		\node[rectangle, above left of =host,node distance = 3cm,inner sep=0pt, draw=black, thick, text centered,fill=red!50, minimum size = 1cm] (nat1) {NAT};
-		\node[rectangle, above of =nat1,node distance = 3cm,inner sep=0pt, draw=black, thick, text centered,fill=red!50, minimum size = 1cm] (nat2) {NAT};
+		% Host connectors
 
-		\node[rectangle, above right of =host,node distance = 3cm,inner sep=0pt, draw=black, thick, text centered,fill=red!50, minimum size = 1cm] (nat3) {NAT};
-		\node[rectangle, above of =nat3,node distance = 3cm,inner sep=0pt, draw=black, thick, text centered,fill=red!50, minimum size = 1cm] (nat4) {NAT};
+		\node[rectangle, above of =host,node distance = 2cm,inner sep=0pt, draw=black, thick, text centered,fill=green!50, minimum width = 1.6cm, minimum height=1cm, node distance = 2.2cm] (vboxnet0) {\footnotesize vboxnet0};
 
+		\node[rectangle, below of =host,node distance = 2.85cm,inner sep=0pt, draw=black, thick, text centered,fill=red!50, minimum size = 1cm] (hostnat) {\footnotesize NAT};
 
 		% CentOS
+		\node[circle, left of=host,node distance = 5cm, minimum size = 2cm,inner sep=0pt, draw=black, thick, text centered,fill=blue!30] (centos) {CentOS};
 
-		\node[circle, right of=nat4,node distance = 3cm, minimum size = 2cm,inner sep=0pt, draw=black, thick, text centered,fill=blue!30] (centos) {CentOS};
+
+		\node[rectangle, below right of =centos,node distance = 4cm,inner sep=0pt, draw=black, thick, text centered,fill=blue!30, minimum size = 1cm] (centosnat) {\footnotesize NAT};
+		\node[rectangle, above of =centosnat,node distance = 6.7cm,inner sep=0pt, draw=black, thick, text centered,fill=green!50, minimum size = 1cm] (centosho) {\footnotesize HO};
+
 
 		% Ubuntu Server
-		\node[circle, left of=nat2,node distance = 3cm, minimum size = 2cm,inner sep=0pt, draw=black, thick, text centered,fill=yellow!20, align=center] (ubuntu) {Ubuntu \\ Server};
+		\node[circle, right of=host,node distance = 5cm, minimum size = 2cm,inner sep=0pt, draw=black, thick, text centered,fill=yellow!20, align=center] (ubuntu) {Ubuntu \\ Server};
+
+		\node[rectangle, below left of =ubuntu,node distance = 4cm,inner sep=0pt, draw=black, thick, text centered,fill=yellow!20, minimum size = 1cm] (ubuntunat) {\footnotesize NAT};
+		\node[rectangle, above of =ubuntunat,node distance = 6.7cm,inner sep=0pt, draw=black, thick, text centered,fill=green!50, minimum size = 1cm] (ubuntuho) {\footnotesize HO};
+
+
 
 		% Internet
-		\node[cloud, right of=nat3,node distance = 3cm, minimum width=3cm,inner sep=0pt, draw=black, thick, text centered,fill=blue!10, align=center] (internet) {Internet};
+		\node[cloud, below of=hostnat,node distance = 3cm, minimum width=3cm,inner sep=0pt, draw=black, thick, text centered,fill=blue!10, align=center] (internet) {Internet};
 
 
-		%% Host- only
-		\node[rectangle, above right of =ubuntu,node distance = 3cm,inner sep=0pt, draw=black, thick, text centered,fill=green!50, minimum size = 1cm] (nat5) {NAT};
-		\node[rectangle, above left of =centos,node distance = 3cm,inner sep=0pt, draw=black, thick, text centered,fill=green!50, minimum size = 1cm] (nat6) {NAT};
 
 		% Arrows
 
-		\draw [arrow] (host) -- (nat1);
-		\draw [arrow] (host) -- (nat3);
-		\draw [arrow] (nat1) -- (nat2);
-		\draw [arrow] (nat3) -- (nat4);
+		\draw [arrow,draw=red] (host) -- (vboxnet0);
+		\draw [arrow] (host) -- (hostnat);
 
-		\draw [arrow] (nat2) -- (ubuntu);
-		\draw [arrow] (nat4) -- (centos);
 
-		\draw [arrow] (nat3) -- (internet);
+		\draw [arrow] (centos) -- (centosho);
+		\draw [arrow] (centos) -- (centosnat);
 
-		\draw [arrow,draw=red] (ubuntu) -- (nat5);
-		\draw [arrow,draw=red] (nat5) -- (nat6) node[midway,above] (ho) {Host-only};
-		\draw [arrow,draw=red] (nat6) -- (centos);
+		\draw [arrow] (ubuntu) -- (ubuntuho);
+		\draw [arrow] (ubuntu) -- (ubuntunat);
+
+		\draw [arrow] (centosnat) -- (hostnat);
+		\draw [arrow] (ubuntunat) -- (hostnat);
+
+		\draw [arrow] (hostnat) -- (internet);
+
+		\draw [arrow,draw=red] (ubuntuho) -- (centosho);
+		\coordinate (hocenter) at ($(ubuntuho)!0.5!(centosho)$);
+		\draw [arrow,draw=red] (hocenter) -- (vboxnet0);
+
+
+	%	\draw [arrow,draw=red] (nat5) -- (nat6) node[midway,above] (ho) {Host-only};
+	%	\draw [arrow,draw=red] (nat6) -- (centos);
+	%	\draw [arrow,draw=red] (CENTER) -- (vboxnet0);
+
 
 		% IP addresses
-		\node[above left of =ubuntu] {192.168.56.105};
-		\node[above right of =centos] {192.168.56.115};
-		\node[below of =host, node distance = 1.5cm] {192.168.56.1};
+		\node[above right of =ubuntu] {192.168.56.105};
+		\node[above left of =centos] {192.168.56.115};
+		\node[below right of =host, node distance = 1.7cm] {192.168.56.1};
+
 
 
 	\end{tikzpicture}
@@ -937,7 +953,7 @@ El esquema de red resultante es el siguiente:
 
 
 
-
+\newpage
 \section{Preguntas de examen}
 \subsection{Práctica 1}
 \begin{enumerate}
@@ -979,8 +995,10 @@ El esquema de red resultante es el siguiente:
 	\end{solution}
 	\item ¿Qué tipos de \textit{LUKS} hay? ¿Cuál usamos nosotros en la sesión 3 de la práctica 1?
 	\begin{solution}
-		\item \textit{LUKS} on \textit{LVM}. Consiste en montar la pila LVM y después cifrar mediante \textit{LUKS} los LV deseados. Es más eficiente y permite tener LV cifrados y LV no cifrados. Es el óptimo cuando no se quiere cifrar todo el disco.
-		\item \textit{LVM} on \textit{LUKS}. Ciframos todo el disco con \textit{LUKS} y después montamos LVM encima. Es más seguro pero conlleva un peor rendimiento.
+		\begin{itemize}
+			\item \textit{LUKS} on \textit{LVM}. Consiste en montar la pila LVM y después cifrar mediante \textit{LUKS} los LV deseados. Es más eficiente y permite tener LV cifrados y LV no cifrados. Es el óptimo cuando no se quiere cifrar todo el disco.
+			\item \textit{LVM} on \textit{LUKS}. Ciframos todo el disco con \textit{LUKS} y después montamos LVM encima. Es más seguro pero conlleva un peor rendimiento.
+		\end{itemize}
 		En la sesión 3 de la práctica 1 utilizamos \textit{LUKS} on \textit{LVM}.
 	\end{solution}
 \end{enumerate}
