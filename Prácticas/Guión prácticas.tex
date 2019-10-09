@@ -21,7 +21,7 @@
 \usepackage{listings}
 \usepackage{array}
 \usepackage{tikz}
-\usetikzlibrary{shapes.geometric, arrows, chains, calc,positioning,fit,decorations.pathreplacing}
+\usetikzlibrary{shapes,shapes.geometric, arrows, chains, calc,positioning,fit,decorations.pathreplacing}
 \usepackage[framemethod=tikz]{mdframed}
 
 \graphicspath{ {../img/}}
@@ -291,7 +291,7 @@ La estructura a crear es la siguiente:
 
 \end{enumerate}
 
-\subsubsection{Configuración de red}
+\subsubsection{Configuración de red de Ubuntu Server}
 
 Necesitamos configurar la red de forma que las máquinas puedan comunicarse entre sí,con el \textit{host} y con el exterior. Para ello, seguiremos los siguientes pasos:
 \begin{enumerate}
@@ -790,24 +790,25 @@ Los pasos a seguir son los siguientes:
 		/dev/mapper/pmraid1-newvar_crypt /var ext4 defaults 0 0
 	\end{lstlisting}
 	\item Desmontamos el volumen:
-	\begin{lstlisting}[xleftmargin=-3.8cm]
+	\begin{lstlisting}
 		#> umount /mnt/varCifr
 	\end{lstlisting}
 	Comprobamos con \textit{mount}.
 	\item Borramos los datos antiguos:
-	\begin{lstlisting}[xleftmargin=-3.8cm]
+	\begin{lstlisting}
 		#> mv /var /varOld
 	\end{lstlisting}
+	En un tiempo prudencial se eliminaría el directorio \textit{/varOld}.
 	\item Creamos \textit{/var} de nuevo:
-	\begin{lstlisting}[xleftmargin=-3.8cm]
+	\begin{lstlisting}
 		#> mkdir /var
 	\end{lstlisting}
 	\item Restauramos el contexto:
-	\begin{lstlisting}[xleftmargin=-3.8cm]
+	\begin{lstlisting}
 		#> restorecon /var
 	\end{lstlisting}
 	\item Montamos los sistemas de archivos de \textit{/etc/fstab}:
-	\begin{lstlisting}[xleftmargin=-3.8cm]
+	\begin{lstlisting}
 		#> mount -a
 	\end{lstlisting}
 	Comprobamos con \textit{mount}.
@@ -816,9 +817,119 @@ Los pasos a seguir son los siguientes:
 	\item Tomamos una instantánea de la máquina.
 \end{enumerate}
 
+\subsubsection{Configuración de red de CentOS}
+\begin{enumerate}
+	\item Comenzamos añadiendo la interfaz de sólo anfitrión en el adaptador 2 de la máquina mediante VirtualBox (igual que en la sesión 1).
+	\item Buscamos en qué interfaz se encuentra la nueva red. Para ello ejecutamos:
+	\begin{lstlisting}
+		$> ip addr
+	\end{lstlisting}
+	y vemos que la nueva es \textit{enp0s8}.
+	\item Nos logueamos con permisos \textit{root} mediante \textit{su}
+	\item Creamos su script de configuración:
+	\begin{lstlisting}
+		#> vi /etc/sysconfig/network-scripts/ifcfg-enp0s8
+	\end{lstlisting}
+	y añadimos el siguiente contenido:
+	\begin{lstlisting}
+		TYPE=Ethernet
+		BOOTPROTO=none
+		NAME=enp0s8
+		DEVICE=enp0s8
+		ONBOOT=yes
+		IPADDR=192.168.56.110
+		NETMASK=255.255.255.0
+	\end{lstlisting}
+	\item Levantamos la interfaz:
+	\begin{lstlisting}
+		#> ifup enp0s8
+	\end{lstlisting}
+	\item Podemos editar el archivo \textit{ifcfg-enp0s3} para activar el flag \textit{ONBOOT} y que la interfaz que nos conecta con Internet se active al iniciar:
+	\begin{lstlisting}
+		#> vi /etc/sysconfig/network-scripts/ifcfg-enp0s3
+	\end{lstlisting}
+	Cambiamos \textit{ONBOOT=no} por \textit{ONBOOT=yes}.
+\end{enumerate}
+Ahora comprobamos que toda la conectividad funciona. Para ello arrancamos ambas máquinas, CentOS y Ubuntu Server. Realizaremos las siguientes pruebas:
+\begin{itemize}
+	\item Ping entre las máquinas:
+	\begin{lstlisting}
+		Ubuntu Server $> ping 192.168.56.110 -c 5
+		CentOS        $> ping 192.168.56.105 -c 5
+	\end{lstlisting}
+	\item Ping de las máquinas al host (actúa como router):
+	\begin{lstlisting}
+		 $> ping 192.168.56.1 -c 5
+	\end{lstlisting}
+	\item Ping desde el anfitrión a las máquinas:
+	\begin{lstlisting}
+	$> ping 192.168.56.105 -c 5
+	$> ping 192.168.56.110 -c 5
+	\end{lstlisting}
+	\item Ping entre las máquinas e Internet:
+	\begin{lstlisting}
+	$> ping google.es -c 5
+	\end{lstlisting}
+\end{itemize}
+En todos los casos las 5 respuestas deberían ser recibidas.\\
+
+El esquema de red resultante es el siguiente:
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}[arrow/.style = {thick,-stealth}, node distance=2cm]
+		\tikzset{set/.style={draw,rectangle,inner sep=0pt,align=center}}
+
+		% Host
+		\node[diamond,fit={(0,0) (1,1)}, inner sep=0pt, draw=black, thick, text centered,fill=violet!20] (host) {Host};
+
+		% NAT
+		\node[rectangle, above left of =host,node distance = 3cm,inner sep=0pt, draw=black, thick, text centered,fill=red!50, minimum size = 1cm] (nat1) {NAT};
+		\node[rectangle, above of =nat1,node distance = 3cm,inner sep=0pt, draw=black, thick, text centered,fill=red!50, minimum size = 1cm] (nat2) {NAT};
+
+		\node[rectangle, above right of =host,node distance = 3cm,inner sep=0pt, draw=black, thick, text centered,fill=red!50, minimum size = 1cm] (nat3) {NAT};
+		\node[rectangle, above of =nat3,node distance = 3cm,inner sep=0pt, draw=black, thick, text centered,fill=red!50, minimum size = 1cm] (nat4) {NAT};
 
 
+		% CentOS
 
+		\node[circle, right of=nat4,node distance = 3cm, minimum size = 2cm,inner sep=0pt, draw=black, thick, text centered,fill=blue!30] (centos) {CentOS};
+
+		% Ubuntu Server
+		\node[circle, left of=nat2,node distance = 3cm, minimum size = 2cm,inner sep=0pt, draw=black, thick, text centered,fill=yellow!20, align=center] (ubuntu) {Ubuntu \\ Server};
+
+		% Internet
+		\node[cloud, right of=nat3,node distance = 3cm, minimum width=3cm,inner sep=0pt, draw=black, thick, text centered,fill=blue!10, align=center] (internet) {Internet};
+
+
+		%% Host- only
+		\node[rectangle, above right of =ubuntu,node distance = 3cm,inner sep=0pt, draw=black, thick, text centered,fill=green!50, minimum size = 1cm] (nat5) {NAT};
+		\node[rectangle, above left of =centos,node distance = 3cm,inner sep=0pt, draw=black, thick, text centered,fill=green!50, minimum size = 1cm] (nat6) {NAT};
+
+		% Arrows
+
+		\draw [arrow] (host) -- (nat1);
+		\draw [arrow] (host) -- (nat3);
+		\draw [arrow] (nat1) -- (nat2);
+		\draw [arrow] (nat3) -- (nat4);
+
+		\draw [arrow] (nat2) -- (ubuntu);
+		\draw [arrow] (nat4) -- (centos);
+
+		\draw [arrow] (nat3) -- (internet);
+
+		\draw [arrow,draw=red] (ubuntu) -- (nat5);
+		\draw [arrow,draw=red] (nat5) -- (nat6) node[midway,above] (ho) {Host-only};
+		\draw [arrow,draw=red] (nat6) -- (centos);
+
+		% IP addresses
+		\node[above left of =ubuntu] {192.168.56.105};
+		\node[above right of =centos] {192.168.56.115};
+		\node[below of =host, node distance = 1.5cm] {192.168.56.1};
+
+
+	\end{tikzpicture}
+\end{figure}
 
 
 
@@ -865,6 +976,12 @@ Los pasos a seguir son los siguientes:
 			\item \textit{cp -a /var/* /newvar} no copia los archivos ocultos.
 			\item \textit{cp -a /var/. /newvar} copia todos los archivos (visibles y ocultos).
 		\end{itemize}
+	\end{solution}
+	\item ¿Qué tipos de \textit{LUKS} hay? ¿Cuál usamos nosotros en la sesión 3 de la práctica 1?
+	\begin{solution}
+		\item \textit{LUKS} on \textit{LVM}. Consiste en montar la pila LVM y después cifrar mediante \textit{LUKS} los LV deseados. Es más eficiente y permite tener LV cifrados y LV no cifrados. Es el óptimo cuando no se quiere cifrar todo el disco.
+		\item \textit{LVM} on \textit{LUKS}. Ciframos todo el disco con \textit{LUKS} y después montamos LVM encima. Es más seguro pero conlleva un peor rendimiento.
+		En la sesión 3 de la práctica 1 utilizamos \textit{LUKS} on \textit{LVM}.
 	\end{solution}
 \end{enumerate}
 
