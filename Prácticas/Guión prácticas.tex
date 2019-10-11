@@ -131,7 +131,7 @@ Un servidor es una máquina que se dedica a resolver peticiones. Hay varios tipo
 
 Una \textbf{máquina virtual} es aquella en la que todo su \textit{hardware} está virtualizado, es decir, compartido con el host. Las principales ventajas de las MV son precio, encapsulamiento y flexibilidad. Realmente no son más que archivos.\\
 
-Un \textbf{contenedor} empaqueta una aplicación con sus correspondientes dependencias, consiguiendo así la máxima \textit{portabilidad}. Lo único que se necesita tener instalado en una máquina para ejecutar la aplicación es necesario contar con el hipervisor adecuado (por ejemplo, \textit{Docker}).\\
+Un \textbf{contenedor} empaqueta una aplicación con sus correspondientes dependencias, consiguiendo así la máxima \textit{portabilidad}. Lo único que se necesita tener instalado en una máquina para ejecutar la aplicación es el hipervisor adecuado (por ejemplo, \textit{Docker}).\\
 
 Un \textbf{hipervisor} es un motor que se encarga de traducir las instrucciones de una máquina virtual (o contenedor) a llamadas al sistema. Algunos ejemplos de hipervisor son \textit{VirtualBox} o \textit{VMWare}.
 
@@ -177,7 +177,7 @@ LVM (\textit{\textbf{L}ogical \textbf{V}olume \textbf{M}anager}) provee abstracc
 \begin{itemize}
   \item Volumen físico (\textit{Physical Volume}, \textbf{PV}). Es un dispositivo de almacenamiento (HDD, partición, RAID...).
   \item Grupo de volúmenes (\textit{Volume Group}, \textbf{VG}). Es el centro de LVM. Está formado por uno o más PV. Para aumentar su espacio sólo hay que añadir más volúmenes físicos, siendo esto transparente para los sistemas de archivos, procesos o usuarios.
-  \item Volumen lógico (\textit{Logical Volume}, \textbf{LV}). Es el "producto final", es decir, dispositivos que usaremos para crear sistemas de ficheros. Podríamos decir que son las particiones.
+  \item Volumen lógico (\textit{Logical Volume}, \textbf{LV}). Es el ``producto final'', es decir, dispositivos que usaremos para crear sistemas de ficheros. Podríamos decir que son las particiones.
 \end{itemize}
 
 \begin{figure}[H]
@@ -205,7 +205,7 @@ La estructura a crear es la siguiente:
 
 		% VGs
 		\coordinate (CENTER) at ($(sdapv)!0.5!(sdbpv)$);
-		\node[ellipse,above of=CENTER, inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm,fill=yellow!20] (cl) {cl};
+		\node[ellipse,above of=CENTER, inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm,fill=yellow!20] (cl) {Servidor};
 
 		% LVs
 		\node[ellipse,above of=cl, inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm,fill=brown!25] (raizlv) {raíz};
@@ -220,11 +220,11 @@ La estructura a crear es la siguiente:
 		% FS
 		\node[diamond, above of=swaplv,inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm,fill=red!20] (swapfs) {swap};
 
-		\node[diamond, above of=raizlv,inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm,fill=red!20] (raizfs) {raíz};
+		\node[diamond, above of=raizlv,inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm,fill=red!20] (raizfs) {/};
 
-		\node[diamond, above of=arranquelv,inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm,fill=red!20] (arranquefs) {arranque};
+		\node[diamond, above of=arranquelv,inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm,fill=red!20] (arranquefs) {/boot};
 
-		\node[diamond, above of=hogarlv,inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm,fill=red!20] (hogarfs) {hogar};
+		\node[diamond, above of=hogarlv,inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm,fill=red!20] (hogarfs) {/home};
 
 		% Curly braces
 		\draw [decorate,decoration={brace,amplitude=10pt, raise=2.5pt, mirror}]	(8.5,0) -- (8.5,1) node [black,midway,xshift=1cm] {\footnotesize HDD};
@@ -262,7 +262,7 @@ La estructura a crear es la siguiente:
   \item Creamos una máquina virtual con 1024MB RAM y dos discos duros VDI reservados dinámicamente de 10GB cada uno. Por último, montamos la ISO en el controlador IDE.
   \item  Arrancamos la máquina, marcamos idioma español y procedemos a la instalación.
   \item Elegimos España y la distribución de teclado Spanish/Spanish.
-	\item Dejamos el nombre de la máquina en "ubuntu" y establecemos el nombre de usuario con nuestras iniciales. La clave será \textit{practicas,ISE}.
+	\item Dejamos el nombre de la máquina en ``ubuntu'' y establecemos el nombre de usuario con nuestras iniciales. La clave será \textit{practicas,ISE}.
 	\item No ciframos la carpeta personal, ya que usaremos FDE (\textit{Full Disk Encryption}).
 	\item Aceptamos la zona horaria propuesta.
 	\item Elegimos particionado manual.
@@ -363,7 +363,7 @@ Básicamente, tenemos que pasar del esquema actual:
 		\node[ellipse,above of=sda2pv, inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm,fill=yellow!20] (cl) {cl};
 
 		% LVs
-		\node[ellipse,above left of=cl, inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm,fill=brown!25] (/lv) {/};
+		\node[ellipse,above left of=cl, inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm,fill=brown!25] (/lv) {root};
 
 		\node[ellipse,above right of=cl, inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm,fill=brown!25] (swaplv) {swap};
 
@@ -423,7 +423,7 @@ Al siguiente:
 		\node[ellipse,above right of=sda2pv, inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm,fill=yellow!20] (cl) {cl};
 
 		% LVs
-		\node[ellipse,above left of=cl, inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm,fill=brown!25] (/lv) {/};
+		\node[ellipse,above left of=cl, inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm,fill=brown!25] (/lv) {root};
 
 		\node[ellipse,above of=cl, inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm,fill=brown!25] (swaplv) {swap};
 
@@ -621,7 +621,7 @@ Deberemos partir de una instalación fresca de CentOS (restauramos la instantán
 		\node[ellipse,above of=md0, inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm,fill=yellow!20] (pmraid1) {pmraid1};
 
 		% LVs
-		\node[ellipse,above left of=cl, inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm,fill=brown!25] (/lv) {/};
+		\node[ellipse,above left of=cl, inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm,fill=brown!25] (/lv) {root};
 
 		\node[ellipse,above right of=cl, inner sep=0pt, draw=black, thick, text centered, minimum size = 1cm,fill=brown!25] (swaplv) {swap};
 
@@ -678,7 +678,7 @@ Los pasos a seguir son los siguientes:
 \begin{enumerate}
 	\item Creación de RAID1.
 	\item Montar pila LVM añadiendo el cifrado.
-	\item Dar formato al volumen, copiar archivos, modificar \textit{fstab} y liberar espacio (igual que en la sesión anterior)
+	\item Copiar los archivos (igual que en la sesión anterior)
 \end{enumerate}
 
 \paragraph{Creación de RAID1}
@@ -706,7 +706,7 @@ Los pasos a seguir son los siguientes:
 	\end{lstlisting}
 	Comprobamos mediante \textit{lsblk} que la creación se ha realizado.
 \end{enumerate}
-\paragraph{Pila LVM y cifrado}
+\paragraph{Pila LVM, cifrado y copia}
 \begin{enumerate}
 	\item Comenzamos creando el PV:
 		\begin{lstlisting}[xleftmargin=-1.5cm]
@@ -933,7 +933,7 @@ El esquema de red resultante es el siguiente:
 
 		% IP addresses
 		\node[above right of =ubuntu] {192.168.56.105};
-		\node[above left of =centos] {192.168.56.115};
+		\node[above left of =centos] {192.168.56.110};
 		\node[below right of =host, node distance = 1.7cm] {192.168.56.1};
 
 
