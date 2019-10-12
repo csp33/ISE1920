@@ -653,6 +653,300 @@ En las especificaciones de una memoria DRAM suelen aparecer los siguientes campo
 	\item \textit{Dual Ranked}. En la otra cara hay otros 18 módulos.
 \end{itemize}
 
+\subsection{Ranuras de expansión}
+
+Sireven para extender la funcionalidad de la placa base mediante otras tarjetas PCB. Los principales slots son:
+\begin{itemize}
+	\item \textbf{ISA} (\textit{\textbf{I}ndustry \textbf{S}tandard \textbf{A}rchitecture}). Usaban un bus de 16 bits en half-dúplex (el mismo bus se usaba para lectura y escritura).
+	\item \textbf{PCI} (\textit{\textbf{P}eripheral \textbf{C}omponent \textbf{I}nterconnect}). Fueron lanzadas por Intel. Sus principales características son:
+		\begin{itemize}
+			\item \textit{Plug\&Play}: la tarjeta se conecta a la máquina y ya se puede usar. No se necesita especificar la interrupción con la que la máquina puede comunicarse con la tarjeta (en ISA sí).
+			\item Se usa un bus paralelo (half-dúplex) de 32 ó 64 bits. La señal de reloj es igual para los 32 ó 64 bits.
+			\item Existe una versión específica para servidores (PCI-X) que lograba un ancho de banda de prácticamente el doble.
+		\end{itemize}
+		\item \textbf{AGP} (\textit{\textbf{A}ccelerated \textbf{G}raphics \textbf{P}ort}). Desarrolladas por Intel. Es una conexión específica para GPUs, por lo que se eliminan características de PCI que utilizaban el resto de tarjetas.
+		\item \textbf{PCIe} (\textit{PCI Express}). Es loa interfaz utilizada actualmente.
+		\begin{itemize}
+			\item Se usa una conexión en serie punto a punto (las líneas no son compartidas) por medio de \textit{LANES}.
+			\item Cada \textit{LANE} está compuesta por 4 cables: dos para leer y 2 para escribir (full-dúplex) .
+			\item Cada \textit{LANE} tiene su propia señal de reloj (incrustada en los datos que transfiere).
+			\item \textit{Hot plug}, es decir, podemos conectar la tarjeta a la máquina sin apagarla, ya que el número de \textit{LANES} se negocia automáticamente.
+			\item Se virtualiza la E/S (el hipervisor de una máquina virtual no tiene que gestionar el acceso al recurso, sino que la tarjeta reserva una parte para la MV	item).
+			\item La escalabilidad es muy sencilla, sólo hay que incrementar el número de \textit{LANES}.
+			\item Se añade redundancia, por lo que las codificaciones más comunes son 8b/10b (el dato ocupa 8 bits pero se añaden 2 más de redundancia) y 128b/130b.
+			\item Las versiones de PCIe y sus respectivas velocidades (en cada línea y sentido) son las siguientes:
+			\begin{itemize}
+				\item PCIe 1.1: 2.5GT/s (250MB/s). En la codificación 8b/10b dividimos las gigatransferencias entre 10 para hallar la velocidad en MB/s.
+				\item PCIe 2.0: 5GT/s (500/s)
+				\item PCIe 3.0: 8GT/s (en torno a 1GB/s). Aquí se comenzó a usar la codificación 128b/130b, por lo que dividimos entre 8.
+				\item PCIe 4.0: 16GT/s (en torno a 2GB/s)
+			\end{itemize}
+			\item El número de \textit{LANES} habitual es x1,x2,x4,x8 o x16 (tarjetas gráficas).
+			\item Las principales ventajas de utilizar un protocolo de serie con respecto a uno paralelo son el aumento de frecuencia de reloj (lo que evita el \textit{timing skew}, fenómeno por el que una señal de reloj llega a distintos componentes en tiempos distintos debido a que la longitud del cable es distinta) y una mayor escalabilidad.
+		\end{itemize}
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\textwidth]{isapci.png}
+	\caption{Slots ISA y PCI}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{pcieagp.png}
+	\caption{Slots PCI, AGP y PCI Express}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[angle=90,width=0.5\textwidth]{timskew.jpg}
+	\caption{Las líneas no tienen la misma longitud, lo que provoca el \textit{timing skew}}
+\end{figure}
+
+\subsection{Almacenamiento permanente (no volátil)}
+
+Estos dispositivos sirven para almacenar información sin que se pierda al apagar la máquina. Se dividen en :
+\begin{itemize}
+	\item Según su tipo:
+	\begin{itemize}
+		\item Magnéticos (disquetes, HDD, cintas).
+		\item Ópticos (CD, DVD, Blu-Ray).
+		\item Memoria Flash (SSD).
+	\end{itemize}
+	\item Según su factor de forma (en pulgadas): 3.5, 2.5 y 1.8.
+	\item Según su conexión a la placa base: ATA (IDE), SATA, M.2, SCSI, SAS, etc,
+\end{itemize}
+
+\subsubsection{Discos duros (HDD)}
+\begin{itemize}
+	\item Son discos recubiertos de un material magnético. La lectura y escritura se realiza mediante un cabezal magnético móvil.
+	\item Los datos se distribuyen en pistas.
+	\item Las pistas se dividen en sectores, que se agrupan en clústers lógicos.
+	\item Si incrementamos las revoluciones por minuto (normalmente 5400, 7200 o 10000), aumentamos la productividad y el ancho de banda.
+	\item La latencia es variable: depende de dónde se encuentre el cabezal y dónde el dato.
+	\item Se suele añadir un módulo de caché para acelerar la lectura.
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\textwidth]{hddparts.png}
+	\caption{Pistas, sectores, clústers y cilindros en un HDD}
+\end{figure}
+
+\subsubsection{Unidades de estado sólido (SSD)}
+\begin{itemize}
+	\item Están basadas en MOSFETs de puerta flotante.
+	\item Se obtiene la misma latencia accediendo a cualquier dato.
+	\item La densidad de chips es más baja, por lo que la capacidad también.
+	\item Las celdas más comunes son MLC (\textit{\textbf{M}ulti \textbf{L}evel \textbf{C}ell}) que admiten más de dos estados. Por ejemplo: descargado, poco cargado, muy cargado y completamente cargado.
+	\item Un controlador se encarga de distribuir la información entre las celdas para equilibrar el número de escrituras (\textit{wear leveling}) y así prolongar la vida útil de la unidad.
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{ssd.jpg}
+	\caption{SSD}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{wearleveling.png}
+	\caption{La importancia de \textit{wear leveling}}
+\end{figure}
+
+\subsubsection{RAID}
+Consiste en combinar distintas unidades de almacenamiento para generar unidades lógicas con mayor tolerancia a fallos, fiabilidad y ancho de banda. Puede estar creado por software o por hardware (una tarjeta específica).
+
+\subsubsection{Unidades ópticas}
+Almacenan información de forma permanente a partir de surcos en un disco que se pueden leer mediante un haz de luz láser. Su principal problema es que no tienen un gran ancho de banda. Los más comunes son el CD, DVD y Blu-Ray.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{surcos.png}
+	\caption{Surcos en un CD y un DVD}
+\end{figure}
+
+\subsubsection{Unidades de cinta}
+
+\begin{itemize}
+	\item Almacenan información a través de una cinta recubierta de material magnético que se enrolla en carretes.
+	\item La latencia suele ser alta ya que hay que rebobinar la cinta para que el cabezal lea lo adecuado.
+	\item Es el medio con mayor densidad de bits (decenas de TB por cinta).
+	\item Es el medio de almacenamiento masivo más barato.
+	\item Se utiliza normalmente como backup.
+\end{itemize}
+
+\subsubsection{Interfaz P-ATA (\textit{\textbf{P}arallel \textbf{A}dvanced \textbf{T}echnology \textbf{A}ttachment})}
+
+\begin{itemize}
+	\item Utiliza el conector IDE (\textit{\textbf{I}ntegrated \textbf{D}evice \textbf{E}lectronics}).
+	\item Emplea una faja de 40 pines con un bus paralelo (half-dúplex) de 16 bits que permite conectar dos dispositivos (maestro y esclavo).
+	\item Transfiere un máximo de 133Mbps.
+	\item La longitud máxima de la faja es de 45cm.
+\end{itemize}
+
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{patacable.jpg}
+	\caption{Faja PATA}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{pataconnection.jpg}
+	\caption{Conexión de un dispositivo PATA}
+\end{figure}
+
+\subsubsection{S-ATA (\textit{\textbf{S}erial \textbf{ATA}})}
+\begin{itemize}
+	\item Emplea un bus serie punto a punto full-dúplex (2 cables para leer y 2 para escribir).
+	\item Permite una unidad por conector.
+	\item La longitud máxima del cable es de 1m.
+	\item Emplea AHCI (\textit{\textbf{A}dvanced \textbf{H}ost \textbf{C}ontroller \textbf{I}nterface}), un estándar que define dos elementos:
+	\begin{itemize}
+		\item Hot plug: podemos conectar el disco en caliente.
+		\item NCQ (\textit{\textbf{N}ative \textbf{C}ommand \textbf{Q}uery}). Aumenta el rendimiento de los discos rotacionales implementando una cola de prioridad en la que se leen los datos no según el orden de llegada de la petición, sino según su distancia a la posición actual de la aguja.
+	\end{itemize}
+	\item Las distintas versiones de SATA son: SATA1 (1500Mhz, 150MB/s), SATA2 (3000Mhz, 300MB/s) y SATA3 (6000Mhz, 600MB/s). Dividimos los Mhz entre 10 para obtener los MB/s.
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.35\textwidth]{sata.jpg}
+	\caption{Cable y conector SATA}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{ncq.png}
+	\caption{Funcionamiento de NCQ}
+\end{figure}
+
+\subsubsection{SCSI y SAS}
+
+\begin{itemize}
+	\item SCSI (\textit{\textbf{S}mall \textbf{C}omputer \textbf{S}ystem \textbf{I}nterface})
+	\begin{itemize}
+		\item Utiliza un bus paralelo de 16 bits half-dúplex.
+		\item Es más veloz que ATA.
+		\item Soporta Hot Plug.
+		\item Permite conectar varias unidades en cadena (\textit{daisy-chain}).
+	\end{itemize}
+	\item Ultra-SCSI: permite hasta 320MB/s y 12m de cable. Emplea half-dúplex también.
+	\item SAS (\textit{\textbf{S}erial \textbf{A}ttached \textbf{SCSI}}). Es la versión serie de SCSI.
+	\begin{itemize}
+		\item Permite velocidades de hasta 12Gbps.
+		\item Soporta full-dúplex.
+		\item Es compatible con SATA pero usa mayores voltajes (por ello el conector de alimentación se une al de datos).
+		\item Permite hasta 10 metros de cable.
+		\item Se pueden conectar varias unidades al mismo puerto mediante conectores mini-SAS (4 unidades por puerto mediante un cable \textit{splitter}).
+		\item También se puede emplear un expansor SAS para conectar más unidades a la placa base.
+	\end{itemize}
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.35\textwidth]{scsicable.jpg}
+	\caption{Cable SCSI}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{sasconnector.jpg}
+	\caption{Conectores SATA y SAS}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.35\textwidth]{sassplitter.jpg}
+	\caption{Cable \textit{splitter} SAS}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.35\textwidth]{sasexpander.jpg}
+	\caption{Expansor SAS}
+\end{figure}
+
+\subsubsection{NVMe (\textbf{N}on \textbf{V}olatile \textbf{M}emory \textbf{E}xpress)}
+Se trata de un protocolo para conectar unidades SSD mediante PCIe (normalmente x4). Su mayor ventaja es la gran escalabilidad que proporciona. Se implementan en los siguientes conectores:
+\begin{itemize}
+	\item PCIe x4, 4GB/s.
+	\item M.2. Es el mini-sata de segunda generación. Usa internamente PCIe x4 (4GB/s).
+	\item U.2. Fue lanzado por Intel. Utiliza también PCIe x4 de forma interna (4GB/s).
+	\item SATA3.2. Combina PCIe y SATA, llegando a 2GB/s.
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.35\textwidth]{pcienvme.jpeg}
+	\caption{NVMe PCIe}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.35\textwidth]{m2.jpg}
+	\caption{NVMe M.2}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.35\textwidth]{u2.jpg}
+	\caption{NVMe U.2}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.35\textwidth]{satae.jpg}
+	\caption{NVMe SATA Express}
+\end{figure}
+
+\subsubsection{Otras interfaces de almacenamiento}
+
+\begin{itemize}
+	\item \textbf{Fibra óptica}. Es una tecnología de red en serie constituida por dos fibras unidireccionales que transmiten en idrecciones opuestas. Permite conexión punto a punto, en anillo o redes conmutadas (muy escalable). Puede transmitir hasta distancias de kilómetros. Son utilizadas por el 90\% de las SAN.
+	\item \textit{\textbf{Infiniband}}. Ofrece una comunicación en serie punto a punto de muy baja latencia entre procesadores y periféricos de alta velocidad. Se usa en redes conmutadas.
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.35\textwidth]{fccable.jpg}
+	\caption{Cable de fibra óptica}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.35\textwidth]{infiniband.jpeg}
+	\caption{Cable \textit{infiniband}}
+\end{figure}
+
+\subsection{Conectores del panel trasero}
+
+Una placa base para servidor tiene en su panel trasero, básicamente:
+
+\begin{itemize}
+	\item Una salida de vídeo básica (normalmente VGA).
+	\item Uno o varios conectores de red.
+	\item Un conector de serie.
+	\item USB.
+\end{itemize}
+
+Si la placa que estamos analizando tiene salidas de vídeo o audio de altas prestaciones, lo más seguro es que se trate de una placa para PC.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{pcmobo.jpg}
+	\caption{Conectores de placa para PC}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{serverconnectors.jpg}
+	\caption{Conectores de placa para servidor}
+\end{figure}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Ejercicios resueltos}
 \subsection{Tema 1}
