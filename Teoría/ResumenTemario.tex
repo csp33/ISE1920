@@ -814,7 +814,7 @@ Almacenan información de forma permanente a partir de surcos en un disco que se
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.35\textwidth]{sata.jpg}
+	\includegraphics[width=0.3\textwidth]{sata.jpg}
 	\caption{Cable y conector SATA}
 \end{figure}
 
@@ -848,7 +848,7 @@ Almacenan información de forma permanente a partir de surcos en un disco que se
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.35\textwidth]{scsicable.jpg}
+	\includegraphics[width=0.3\textwidth]{scsicable.jpg}
 	\caption{Cable SCSI}
 \end{figure}
 
@@ -946,6 +946,153 @@ Si la placa que estamos analizando tiene salidas de vídeo o audio de altas pres
 	\includegraphics[width=0.8\textwidth]{serverconnectors.jpg}
 	\caption{Conectores de placa para servidor}
 \end{figure}
+
+\subsection{RJ-45}
+
+\begin{itemize}
+	\item Sirve para conectar redes de área local a largas distancias (100m con par trenzado y varios km con fibra óptica).
+	\item Los estándares son retrocompatibles y admiten full-dúplex.
+	\item Muchos estándares de comunicación se pueden realizar a través de Ethernet:
+	\begin{itemize}
+		\item iSCSI (\textit{\textbf{I}nternet \textbf{SCSI}}): permite usar SCSI sobre redes TCP/IP.
+		\item FCoE (\textit{\textbf{F}ibre \textbf{C}hannel \textbf{o}ver \textbf{Ethernet}}): permite usar tramas Fibre Channel sobre TCP/IP.
+	\end{itemize}
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.3\textwidth]{rj45.jpg}
+	\caption{Cable RJ-45}
+\end{figure}
+
+\subsection{Universal Serial Bus (USB)}
+
+Actualmente se comercializan dos versiones:
+\begin{itemize}
+	\item USB 2.0
+	\begin{itemize}
+		\item Es un puerto de serie de 4 pines (2 de datos, 1 de masa y 1 de alimentación).
+		\item Su velocidad máxima es de 480Mb/s.
+		\item Soporta hot plug y opera mediante half-dúplex.
+	\end{itemize}
+	\item USB 3.0
+	\begin{itemize}
+		\item Se compone de 9 pines: 4 del USB 2.0 (es retrocompatible) y 5 para aportar más velocidad.
+		\item Su velocidad máxima es de 4.8Gb/s.
+		\item Su sucesor, USB 3.1, soporta hasta 10Gb/s.
+	\end{itemize}
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.3\textwidth]{usb.png}
+	\caption{Conectores USB 2.0 y 3.0}
+\end{figure}
+
+\subsection{Thunderbolt}
+
+\begin{itemize}
+	\item Es un estándar lanzado por Intel.
+	\item Combina PCIe y DisplayPort (almacenamiento externo de altas prestaciones y monitor de alta resolución.
+	\item Se alcanzan anchos de banda de hasta 40Gb/s en cada dirección y por cada canal.
+	\item Utiliza el mismo conector que USB C.
+\end{itemize}
+
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.3\textwidth]{thunderbolt.png}
+	\caption{Cable Thunderbolt}
+\end{figure}
+
+\subsection{Otros conectores internos}
+
+\subsubsection{System panel}
+
+Sirve para conectar los botones de power y reset, luces de encendido y HDD, zumbador, etc. del chasis a la placa base.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{syspanel.jpg}
+	\caption{Conector del panel del sistema}
+\end{figure}
+
+\subsubsection{Puerto de serie}
+
+Sirve para añadir un puerto de serie a la parte trasera de la máquina.
+
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{serial.jpg}
+	\caption{Conector del puerto de serie}
+\end{figure}
+
+\subsubsection{USB interno}
+
+Añade más puertos USB a la máquina. Pueden ser 2.0 o 3.0.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{mobousb.jpg}
+	\caption{Cable USB 3.0 y conectores USB (2.0 el blanco y 3.0 el azul)}
+\end{figure}
+
+\subsubsection{Chassis Intrusion Detector}
+
+Envía una señal cuando se abre la tapa del chasis. Esta señal puede redirigirse a un administrador del sistema. Funciona con el voltaje 5V de standby.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{chassisintrusion.jpg}
+	\caption{Interruptor para detectar la intrusión en el chasis}
+\end{figure}
+
+\subsubsection{IEEE 1394a (Firewire)}
+
+Sirve para conectar dispositivos en serie a gran velocidad. Fue sustituido por USB.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{firewire.png}
+	\caption{Conector Firewire}
+\end{figure}
+
+\subsubsection{CD IN audio}
+
+Servía para el conector de audio de las lectoras de CD PATA. Fue sustituido por conectores de audio en el propio chasis.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{cdin.jpg}
+	\caption{Conector CD IN}
+\end{figure}
+
+\subsection{ROM/Flash BIOS (\textit{\textbf{B}asic \textbf{I}nput \textbf{O}utput \textbf{S}ystem})}
+
+\begin{itemize}
+	\item Almacena el código de arranque del computador, que se encarga de identificar los dispositivos instalador, instalar controladores básicos para poder acceder a ellos, realizar el POST (\textit{\textbf{P}ower \textbf{O}n \textbf{S}elf \textbf{T}est}) del sistema e iniciar el SO.
+	\item Los parámetros de configuración se almacenan en una memoria RAM alimentada por una pila (que también se usa para el reloj de tiempo real). Algunos de estos parámetros se configuran mediante \textit{jumpers} (conectan dos o más pines) en la placa base, pero la mayoría se gestionan desde el firmware de la BIOS.
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{biosbattery.jpg}
+	\caption{Chip BIOS y pila}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{bios.png}
+	\caption{Firmware de la BIOS}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{jumper.jpg}
+	\caption{\textit{Jumper} para borrar la configuración del firmware de la BIOS}
+\end{figure}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Ejercicios resueltos}
