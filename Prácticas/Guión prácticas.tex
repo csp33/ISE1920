@@ -944,8 +944,90 @@ El esquema de red resultante es el siguiente:
 Añadimos la interfaz sólo anfitrión porque las máquinas no pueden comunicarse entre ellas mediante NAT.
 
 
+\section{Práctica 2}
+
+\subsection{Sesión 1}
+
+En esta sesión instalaremos el servicio \textit{ssh} en Ubuntu. SSH es un protocolo de administración remota que permite que otro se usuario se conecte a nuestro servidor y lo maneje (y viceversa). Consta de dos elementos:
+\begin{itemize}
+	\item \textit{\textbf{ssh}}. Es el cliente. Sirve para conectarnos a otra máquina.
+	\item \textit{\textbf{sshd} (SSH Daemon)}. Es el servidor, sirve para que otras máquinas se conecten a la nuestra.
+\end{itemize}
 
 
+\begin{enumerate}
+	\item Comenzamos arrancando la máquina en la instantánea de la instalación limpia con la red configurada.
+	\item Instalamos el paquete mediante:
+	\begin{lstlisting}
+		$> sudo apt install openssh-server
+	\end{lstlisting}
+	\item Si ejecutamos \textit{systemctl status ssh} podemos ver que el servicio está activo y que su PID cuelga del servidor (\textit{sshd}). Es decir, Ubuntu, a diferencia de CentOS, no diferencia entre \textit{ssh} y \textit{sshd}.
+	\item Para poder conectarnos por SSH a una máquina debemos ejecutar el comando:
+	\begin{lstlisting}
+		$> ssh IP -l usuario (-p puerto)
+	\end{lstlisting}
+	El usuario por defecto es el de la sesión abierta en ese momento y el puerto el 22.
+	Probamos a ejecutarlo desde el host:
+	\begin{lstlisting}
+		Host $> ssh 192.168.56.105 -l csp
+	\end{lstlisting}
+	Si en alguna ocasión nos hemos conectado a esa máquina mediante SSH, tendremos que eliminar el correspondiente contenido de \textit{~/.ssh/known\_hosts} mediante
+	\begin{lstlisting}
+		Host $> ssh-keygen -f "~/.ssh/known\_hosts" -R "192.168.56.105"
+	\end{lstlisting}
+
+
+	\item Vamos a cambiar varios parámetros del \textbf{servidor}. Para ello editamos su archivo de configuración:
+	\begin{lstlisting}
+		$> sudo vi /etc/ssh/sshd_config
+	\end{lstlisting}
+	\begin{itemize}
+		\item Cambiamos el puerto al 22022 cambiando la línea
+		\begin{lstlisting}
+			PORT 22
+		\end{lstlisting}
+		por
+		\begin{lstlisting}
+			PORT 22022
+		\end{lstlisting}
+		\item Desactivamos el acceso root cambiando la línea
+		\begin{lstlisting}
+			PermitRootLogin prohibit-password
+		\end{lstlisting}
+		por
+		\begin{lstlisting}
+			PermitRootLogin no
+		\end{lstlisting}
+	\end{itemize}
+	Para que los cambios hagan efecto reiniciamos el servicio mediante
+	\begin{lstlisting}
+		$> sudo systemctl restart sshd
+	\end{lstlisting}
+	Podemos comprobar que los cambios han funcionado conectándonos desde el host con el nuevo puerto o mediante \textit{systemctl status sshd}.
+	\item Pasamos a crear la clave público privada. Se trata de un paradigma en el que el cliente genera una llave (clave privada) y un candado (clave pública), que es entregado al servidor. Para autenticarse, el cliente enviará su llave y si encaja con el candado, recibirá acceso. En nuestro caso, el cliente será CentOS y el servidor Ubuntu.
+	\begin{enumerate}
+		\item Comenzamos creando llave y candado en CentOS:
+		\begin{lstlisting}
+		CentOS $> sudo vi /etc/ssh/sshd_config
+		\end{lstlisting}
+		Pulsamos Enter tres veces para elegir el destino por defecto y no establecer contraseña. Vemos que se crean dos archivos: \textit{id\_rsa} (clave privada, llave) e \textit{id\_rsa.pub} (clave pública, candado).
+		\item Entregamos la clave pública al servidor mediante:
+		\begin{lstlisting}
+		CentOS $> ssh-copy-id 192.168.56.105 -p 22022
+		\end{lstlisting}
+		Introducimos la clave y pulsamos Enter.
+		\item Comprobamos que todo ha ido bien conectándonos:
+		\begin{lstlisting}
+		CentOS $> ssh 192.168.56.105 -p 22022
+		\end{lstlisting}
+	\end{enumerate}
+\end{enumerate}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{sshrsa.png}
+	\caption{Esquema clave público-privada en SSH}
+\end{figure}
 
 
 
@@ -998,6 +1080,26 @@ Añadimos la interfaz sólo anfitrión porque las máquinas no pueden comunicars
 		En la sesión 3 de la práctica 1 utilizamos \textit{LUKS} on \textit{LVM}.
 	\end{solution}
 \end{enumerate}
+
+\newpage
+
+\subsection{Práctica 2}
+
+\begin{enumerate}
+	\item Tras instalar el servicio \textit{ssh} en una máquina, ¿está activo?
+	\begin{solution}
+		Sí, está activo con los parámetros por defecto, por ejemplo, el puerto 22.
+	\end{solution}
+	\item ¿Cómo diferencia Ubuntu entre el cliente y el servidor SSH?
+	\begin{solution}
+		No lo hace, para él ambos son el mismo servicio (el PID de \textit{ssh} cuelga del de \textit{sshd}). Lo que sí debemos tener en cuenta es el archivo de configuración que editamos (\textit{/etc/ssh/sshd\_config} o \textit{/etc/ssh/ssh\_config}).
+	\end{solution}
+	\item ¿Hay algún problema si consiguen robarme la clave pública (candado)?
+	\begin{solution}
+		No, ya que solo la clave privada asociada (llave) es capaz de abrirlo. Lo que sí que sería un problema es que alguien obtuviera la clave privada, ya que podría acceder a la máquina con facilidad.
+	\end{solution}
+\end{enumerate}
+
 
 
 
