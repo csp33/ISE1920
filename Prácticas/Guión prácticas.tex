@@ -973,7 +973,7 @@ En esta sesión instalaremos el servicio \textit{ssh} en Ubuntu. SSH es un proto
 	\end{lstlisting}
 	Si en alguna ocasión nos hemos conectado a esa máquina mediante SSH, tendremos que eliminar el correspondiente contenido de \textit{~/.ssh/known\_hosts} mediante
 	\begin{lstlisting}
-		Host $> ssh-keygen -f "~/.ssh/known\_hosts" -R "192.168.56.105"
+		Host $> ssh-keygen -f "~/.ssh/known_hosts" -R "192.168.56.105"
 	\end{lstlisting}
 
 
@@ -1008,7 +1008,7 @@ En esta sesión instalaremos el servicio \textit{ssh} en Ubuntu. SSH es un proto
 	\begin{enumerate}
 		\item Comenzamos creando llave y candado en CentOS:
 		\begin{lstlisting}
-		CentOS $> sudo vi /etc/ssh/sshd_config
+		CentOS $> ssh-keygen
 		\end{lstlisting}
 		Pulsamos Enter tres veces para elegir el destino por defecto y no establecer contraseña. Vemos que se crean dos archivos: \textit{id\_rsa} (clave privada, llave) e \textit{id\_rsa.pub} (clave pública, candado).
 		\item Entregamos la clave pública al servidor mediante:
