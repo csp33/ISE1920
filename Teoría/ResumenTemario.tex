@@ -195,7 +195,9 @@ Los principales elementos que afectan a las prestaciones de un servidor son los 
 	\item \textbf{Disponibilidad} (\textit{Availability}). Un servidor está disponible si está en estado operativo.\\ El tiempo de inactividad (\textit{downtime}) es la cantidad de tiempo en la que el sistema no está disponible. Puede ser de dos tipos:
 	\begin{itemize}
 		\item Planificado (actualizaciones de hardware o software que no se puedan realizar en caliente).
-		\item No planificado (causa de algún fallo). Si el sistema tiene \emph{alta disponibilidad} será \emph{tolerante a fallos}.
+		\item No planificado (a causa de algún fallo).
+		
+		\rightarrow Si el sistema tiene \emph{alta disponibilidad} será \emph{tolerante a fallos}.
 	\end{itemize}
 	\newpage
 	Algunas soluciones para aumentar la disponibilidad son:
@@ -204,7 +206,7 @@ Los principales elementos que afectan a las prestaciones de un servidor son los 
 		\item Sistemas redundantes de discos (\textit{RAID}), alimentación y red.
 		\item Sistemas distribuidos.
 	\end{itemize}
-	\item \textbf{Fiabilidad} (\textit{Reliability}). Un sistema es fiable cuando realiza su actividad sin errores. El \textbf{MTTF} (\textit{\textbf{M}ean \textbf{T}ime \textbf{T}o \textbf{F}ailure}) es el tiempo medio que tiene un sistema hasta que ocurre un error. Los mecanismos para asegurar la fiablilidad son la comprobación (\textit{checksums}, bits de paridad, etc.)
+	\item \textbf{Fiabilidad} (\textit{Reliability}). Un sistema es fiable cuando realiza su actividad sin errores. Se aplica más a componentes por separado. El \textbf{MTTF} (\textit{\textbf{M}ean \textbf{T}ime \textbf{T}o \textbf{F}ailure}) es el tiempo medio que tiene un sistema hasta que ocurre un error. Los mecanismos para asegurar la fiablilidad son la comprobación (\textit{checksums}, bits de paridad, etc.)
 	\item \textbf{Seguridad}. Un servidor debe ser seguro ante:
 	\begin{itemize}
 		\item La incursión de individuos no autorizados (\textit{confidencialidad}).
