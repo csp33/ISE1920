@@ -24,6 +24,12 @@
 \usetikzlibrary{shapes,shapes.geometric, arrows, chains, calc,positioning,fit,decorations.pathreplacing}
 \usepackage[framemethod=tikz]{mdframed}
 
+\newcommand{\greencheck}{}%
+\DeclareRobustCommand{\greencheck}{%
+  \tikz\fill[scale=0.4, color=green]
+  (0,.35) -- (.25,0) -- (1,.7) -- (.25,.15) -- cycle;%
+}
+
 \graphicspath{ {../img/}}
 \selectlanguage{spanish}
 \usepackage[utf8]{inputenc}
@@ -1029,6 +1035,76 @@ En esta sesión instalaremos el servicio \textit{ssh} en Ubuntu. SSH es un proto
 	\caption{Esquema clave público-privada en SSH}
 \end{figure}
 
+\subsection{Sesión 2}
+
+En esta sesión instalaremos el servicio SSH en CentOS y veremos las diferencias que hay con respecto a Ubuntu.
+
+\begin{enumerate}
+	\item Primero comprobamos si el servicio está instalado:
+	\begin{lstlisting}
+		$> systemctl status sshd
+	\end{lstlisting}
+	Podemos ver que sí que está activo. Sin embargo, no se nos muestra el puerto porque no somos usuarios root. Nos logueamos mediante \textit{su} y ejecutamos de nuevo el comando anterior. Veremos que el puerto es el predeterminado (22).
+	\item Accedemos a la cofiguración para editar tanto el acceso root como el puerto:
+	\begin{lstlisting}
+		#> vi /etc/ssh/sshd_config
+	\end{lstlisting}
+	Vemos que todo el archivo está comentado. Para modificar las reglas, descomentamos y editamos las líneas correspondientes:
+	\begin{lstlisting}
+			Port 22022
+			PermitRootLogin no
+	\end{lstlisting}
+	Vemos que encima de la regla del puerto se nos especifica que tenemos que informar a SELinux del cambio que hemos realizado mediante \textit{semanage}, que no está instalado por defecto.
+	\item Buscamos el paquete que incluye la herramienta \textit{semanage}:
+	\begin{lstlisting}
+		#> yum provides semanage
+	\end{lstlisting}
+	Instalamos el paquete que recibimos como respuesta:
+	\begin{lstlisting}
+		#> yum install -y policycoreutils-python-2.5-33.el7.x86_64
+	\end{lstlisting}
+	\item Configuramos el puerto:
+	\begin{lstlisting}
+		#> semanage port -a -t ssh_port_t -p tcp 22022
+	\end{lstlisting}
+	Comprobamos que la regla se añadió mediante:
+	\begin{lstlisting}
+		#> semanage port -l | grep ssh
+	\end{lstlisting}
+	\item Ya tenemos \textit{sshd} configurado y se puede acceder desde el equipo local. Sin embargo, debemos añadir una regla al firewall que permita las conexiones entrantes para el servicio (por defecto las bloquea).
+	\begin{lstlisting}
+		#> firewall-cmd --permanent --add-port=22022/tcp
+	\end{lstlisting}
+	\item Finalmente, reiniciamos los servicios:
+	\begin{lstlisting}
+		#> firewall-cmd --reload
+		#> systemctl restart sshd
+	\end{lstlisting}
+\end{enumerate}
+
+En Ubuntu el firewall se denomina \textit{ufw}. Sus comandos principales son:
+\begin{lstlisting}
+	$> sudo ufw enable							# Activar
+	$> sudo ufw disable						# Desactivar
+	$> sudo ufw allow <port>	# Nueva regla
+\end{lstlisting}
+
+Podemos sintetizar las diferencias entre Ubuntu y CentOS en la siguiente tabla:
+\begin{figure}[H]
+	\centering
+	\begin{tabular}{|m{1.4cm}|m{2cm}|m{2.2cm}|m{2.2cm}|m{3cm}|m{1.5cm}|}
+		\hline
+		 	SO & Activo por defecto & Nombre del servidor & Archivo de configuración & Acceso root por defecto & Firewall \\
+		 \hline
+		 Ubuntu & \textcolor{red}{$\times$} & SSH,SSHD & Sin comentar & \textcolor{red}{$\times$} (prohibit-password) & UFW. Desactivado por defecto \\
+		 \hline
+		 CentOS & \greencheck & SSHD & Comentado & \greencheck & firewall-cmd. Activado por defecto.\\
+		 \hline
+
+	\end{tabular}
+\end{figure}
+
+
 
 
 \newpage
@@ -1099,6 +1175,7 @@ En esta sesión instalaremos el servicio \textit{ssh} en Ubuntu. SSH es un proto
 		No, ya que solo la clave privada asociada (llave) es capaz de abrirlo. Lo que sí que sería un problema es que alguien obtuviera la clave privada, ya que podría acceder a la máquina con facilidad.
 	\end{solution}
 \end{enumerate}
+
 
 
 
