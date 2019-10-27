@@ -475,7 +475,7 @@ Son elementos que se utilizan para bajar la temperatura de un componente. Transf
 	\caption{Disipador activo (ventilador de chasis)}
 \end{figure}
 
-Para refrigerar la CPU se combinan ambos tipos (a un disipador pasivo se le añade un ventilador). Este ventilador es controlado mediante un conector de 4 pines (\textit{CPU\_FAN}), que permite, además de darle energía al ventilador, controlar y medir su velocidad en cada momnento.\\
+Para refrigerar la CPU se combinan ambos tipos (a un disipador pasivo se le añade un ventilador). Este ventilador es controlado mediante un conector de 4 pines (\textit{CPU\_FAN}), que permite, además de darle energía al ventilador, controlar y medir su velocidad en cada momento.\\
 
 Para facilitar la transferencia de calor entre la CPU y el disipador pasivo se emplea \textit{pasta térmica}.
 
@@ -627,10 +627,10 @@ Los canales unen los bancos con la CPU.
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.7\textwidth]{rambanks.png}
-	\caption{Canales (flechas) y banos (rodeados) de RAM}
+	\caption{Canales (flechas) y bancos (rodeados) de RAM}
 \end{figure}
 
-\subsubsection{Rangos de memoria RAM}
+\subsubsection{Rangos de memoria DRAM}
 
 Los rangos son agrupaciones de memoria que suman una palabra completa (64 bits o 72 si la memoria tiene ECC). La notación utilizada es la siguiente:
 \begin{itemize}
@@ -648,7 +648,7 @@ Algunas CPUs pueden no soportar un determinado número de rangos.
 
 En las especificaciones de una memoria DRAM suelen aparecer los siguientes campos:
 \begin{itemize}
-	\item DDR4-\textbf{2166}. Es la frecuencia efectiva. El módulo puede realizar 2666 MegaTransferencias por segundo. Como cada transferencia es de 64 bits (8 bytes): $2166 MTps * 8 B= 21328Mbps \approx$ 21300.
+	\item DDR4-\textbf{2666}. Es la frecuencia efectiva. El módulo puede realizar 2666 MegaTransferencias por segundo. Como cada transferencia es de 64 bits (8 bytes): $2666 MTps * 8 B= 21328Mbps \approx$ 21300.
 	\item DDR4-PC4-\textbf{21300}. Viene del apartado anterior.
 	\item CL19. Latencia de acceso de 19 ciclos de reloj. Hemos de tener cuidado, ya que la velocidad depende tanto de la latencia como de la frecuencia.
 	\item \textit{x4 based}. Cada chip aporta 4 bits (por tanto, si la memoria tiene ECC, hay $\frac{72}{4}=18$ módulos en cada cara).
