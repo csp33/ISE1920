@@ -196,8 +196,8 @@ Los principales elementos que afectan a las prestaciones de un servidor son los 
 	\begin{itemize}
 		\item Planificado (actualizaciones de hardware o software que no se puedan realizar en caliente).
 		\item No planificado (a causa de algún fallo).
-		
-		\rightarrow Si el sistema tiene \emph{alta disponibilidad} será \emph{tolerante a fallos}.
+
+		$\rightarrow$ Si el sistema tiene \emph{alta disponibilidad} será \emph{tolerante a fallos}.
 	\end{itemize}
 	\newpage
 	Algunas soluciones para aumentar la disponibilidad son:
@@ -1094,6 +1094,47 @@ Servía para el conector de audio de las lectoras de CD PATA. Fue sustituido por
 	\includegraphics[width=0.5\textwidth]{jumper.jpg}
 	\caption{\textit{Jumper} para borrar la configuración del firmware de la BIOS}
 \end{figure}
+
+\subsection{Chipset}
+El chipset es el conjunto de circuitos integrados (chips) de la placa base encargados de controlar las comunicaciones que se realizan. Se divide en dos partes:
+\begin{itemize}
+	\item \textbf{Puente norte}. Se encarga de las transferencias de mayor velocidad (CPU, GPu, RAM y south bridge).
+	\item \textbf{Puente sur}. Se encarga de las transferencias entre el puente norte y el resto de periféricos con menores exigencias de velocidad.
+\end{itemize}
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\textwidth]{chipset.png}
+	\caption{Esquema de un chipset}
+\end{figure}
+En equipos modernos el puente norte se integra en la CPU.
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\textwidth]{newchipsets.png}
+	\caption{Chipsets modernos}
+\end{figure}
+\subsection{Carcasa (chasis)}
+En el mundo de los servidores las carcasas se miden en \emph{Rack Units} (U). Esta medida representa la altura de la carcasa (unos 4.5cm). De esta forma podemos encontrar racks de 42U, 19U, etc.
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{rackunits.png}
+	\caption{Rack Units}
+\end{figure}
+\subsection{CPD: Centros de Procesamiento de Datos}
+Son ubicaciones en las que se concentran los recursos informáticos necesarios para el procesamiento de grandes volúmenes de datos.
+\begin{itemize}
+	\item Los servidores, switches, etc. se almacenan en armarios o racks.
+	\item El cableado se distribuye en bandejas, falsos suelos o techos, etc.
+	\item La alimentación es redundante.
+	\item La ventilación es muy importante.
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{cpd.jpg}
+	\caption{Centro de Procesamiento de Datos}
+\end{figure}
+
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
