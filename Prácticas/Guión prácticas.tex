@@ -950,7 +950,7 @@ El esquema de red resultante es el siguiente:
 Añadimos la interfaz sólo anfitrión porque las máquinas no pueden comunicarse entre ellas mediante NAT.
 
 
-\section{Práctica 2}
+\section{Práctica 2: Instalación y configuración de servicios}
 
 \subsection{Sesión 1}
 
@@ -1103,6 +1103,116 @@ Podemos sintetizar las diferencias entre Ubuntu y CentOS en la siguiente tabla:
 
 	\end{tabular}
 \end{figure}
+
+\subsection{Sesión 3}
+En esta sesión instalaremos la pila LAMP (Linux, Apache, MySQL, PHP) en Ubuntu y CentOS.
+Comencemos con Ubuntu:
+
+\begin{enumerate}
+  \item Abrimos el instalador gráfico de paquetes:
+  \begin{lstlisting}
+  	$> sudo tasksel
+  \end{lstlisting}
+  \item Seleccionamos \textit{LAMP Server} con la barra espaciadora y pulsamos Enter.
+  \item Establecemos la contraseña root de MySQL (\textit{practicas,ISE}).
+  \item Esperamos a que termine de instalar y probamos los componentes uno a uno:
+  \begin{enumerate}
+    \item Apache: ejecutamos \textit{curl localhost} o visitamos \textit{192.168.56.105} desde el navegador del host y confirmamos que podemos ver la página por defecto de Apache.
+    \item MySQL: ejecutamos \textit{mysql -u root -p}, introducimos la clave del root y comprobamos que tenemos acceso al servidor mediante el cliente (la consola).
+    \item PHP: ejecutamos \textit{php -a} y accedemos a la consola. Podemos comprobar que todo va bien ejecutando \textit{echo("Prueba");}
+  \end{enumerate}
+\end{enumerate}
+
+  Ya estaría terminada la instalación en Ubuntu. Vamos ahora a CentOS:
+  \begin{enumerate}
+    \item Nos logueamos como superusuario mediante \textit{su}.
+    \item Comenzamos instalando Apache, que en CentOS se llama \textit{httpd}:
+    \begin{lstlisting}
+      #> yum install -y httpd
+    \end{lstlisting}
+    \item Vemos si el servicio está activado e iniciado:
+    \begin{lstlisting}
+      #> systemctl status httpd
+    \end{lstlisting}
+    \item Vemos que tenemos que hacer ambas cosas:
+    \begin{lstlisting}
+      #> systemctl enable httpd
+      #> systemctl start httpd
+    \end{lstlisting}
+    \item Comprobamos que el servicio funciona:
+    \begin{lstlisting}
+      #> curl localhost
+    \end{lstlisting}
+    \item Tenemos el servicio en ejecución y funcionando, pero no podemos acceder desde otra máquina. Añadimos la correspondiente regla permanente al firewall y lo reiniciamos para que se aplique:
+    \begin{lstlisting}
+      #> firewall-cmd --permanent --add-port=80/tcp
+      #> firewall-cmd --reload
+    \end{lstlisting}
+    Por último, comprobamos que ya podemos acceder desde el host.
+    \item Pasamos a instalar MySQL. En CentOS instalaremos la versión gratuita (MariaDB).
+    \begin{lstlisting}
+      #> yum install -y mariadb-server
+    \end{lstlisting}
+    \item Comprobamos el estado del servicio:
+    \begin{lstlisting}
+      #> systemctl status mariadb
+    \end{lstlisting}
+    y lo habilitamos e iniciamos:
+    \begin{lstlisting}
+      #> systemctl enable mariadb
+      #> systemctl start mariadb
+    \end{lstlisting}
+    \item Configuramos el usuario root mediante el comando \textit{mysql\_secure\_installation} (damos YES a todo).
+    \item Accedemos a la consola con \textit{mysql -u root -p} y creamos una nueva base de datos.
+    \begin{lstlisting}
+      MariaDB > create database mi_bd
+    \end{lstlisting}
+    \item Pasamos a PHP. Lo instalamos:
+    \begin{lstlisting}
+      #> yum install php -y
+    \end{lstlisting}
+    y probamos que funciona (igual que en Ubuntu).
+    \item Ya tenemos la pila LAMP instalada. Ahora vamos a comprobar si podemos enlazar los componentes entre sí. La idea es montar un script PHP que acceda a la base de datos \textit{mi\_bd} y ejecutarlo desde el servidor web. Comenzamos instalando el conector:
+    \begin{lstlisting}
+      #> yum install -y php-mysql
+    \end{lstlisting}
+    \item Ahora creamos el script:
+    \begin{lstlisting}
+      #> vi /var/www/html/miscript.php
+    \end{lstlisting}
+    \item Accedemos a \href{https://www.php.net/manual/es/function.mysqli-connect.php}{esta} web y copiamos el ejemplo en vi. Modificamos el usuario y la contraseña con \textit{root} y \textit{practicas,ISE} respectivamente.
+    \item Ejecutamos el script para ver que funciona:
+    \begin{lstlisting}
+      #> php /var/www/html/miscript.php
+    \end{lstlisting}
+    \item Ahora intentamos acceder a la ruta del archivo (\textit{192.168.56.110/miscript.php}) desde el host y vemos que el script no se ha ejecutado, sino que estamos viendo el contenido. Accedemos a la configuración del servidor para arreglar esto:
+    \begin{lstlisting}
+      #> vi /etc/httpd/conf/httpd.conf
+    \end{lstlisting}
+    Cambiamos el texto
+    \begin{lstlisting}
+    <IfModule dir_module>
+      DirectoryIndex index.html
+    </IfModule>
+    \end{lstlisting}
+    por
+    \begin{lstlisting}
+    <IfModule dir_module>
+      DirectoryIndex index.html miscript.php
+    </IfModule>
+    \end{lstlisting}
+    \item Reiniciamos el servicio y comprobamos si funciona:
+    \begin{lstlisting}
+      #> systemctl restart httpd
+    \end{lstlisting}
+    \item Vemos que ya si que se nos ejecuta, pero la conexión no se realiza. Debemos autorizarla a través de SELinux:
+    \begin{lstlisting}
+      #> setsebool -P httpd_can_network_connect_db 1
+    \end{lstlisting}
+    \item Probamos ahora y vemos que funciona correctamente.
+
+
+\end{enumerate}
 
 
 
