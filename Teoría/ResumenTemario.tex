@@ -1000,7 +1000,6 @@ Actualmente se comercializan dos versiones:
 	\item Utiliza el mismo conector que USB C.
 \end{itemize}
 
-
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.3\textwidth]{thunderbolt.png}
@@ -1140,6 +1139,62 @@ Son ubicaciones en las que se concentran los recursos informáticos necesarios p
 \begin{itemize}
 	\item \textbf{Carga} (workload). Es el conjunto de tareas que ha de realizar un sistema, todo aquello que demande recursos.
 	\item \textbf{Actividad} de un sistema. Es el conjunto de operaciones que se realizan en el sistema como consecuencia de la carga que soporta.
+	\item Un sistema informático no es "bueno" ni "malo", sino que se adapta mejor o peor a un determinado tipo de carga.
+	\item La actividad del sistema puede variar debido a los procesadores, la memoria, los discos, la red, etc.
+\end{itemize}
+
+Un \textbf{monitor de actividad} es una herramienta diseñada para medir la actividad de un sistema informático y facilitar su análisis. Se encarga de medir alguna variable que refleje la actividad del sistema, procesar y almacenar los datos recopilados y mostrarlos.
+
+Su utilidad depende de la persona que lo utilice:
+\begin{itemize}
+	\item Administrador/Ingeniero
+	\begin{itemize}
+		\item Conocer el uso de recursos para detectar cuellos de botella.
+		\item Predecir cargas futuras.
+		\item Tarificar a los clientes (cloud).
+		\item Poder deducir qué pasaría si...
+	\end{itemize}
+	\item Programador: conocer las partes críticas de una aplicación de cara a la optimización.
+	\item Sistema Operativo: adaptarse dinámicamente a la carga.
+\end{itemize}
+
+Hay varios tipos de monitores dependiendo del momento en el que se realicen las medidas:
+\begin{itemize}
+	\item \textbf{Monitor por eventos}. Se mide cuando ocurre un evento (inicio/fin de programa, fallo de caché, etc.). Proporcionan información exacta.
+	\item \textbf{Monitor por muestreo}. Toma medidas cada x tiempo. La información que proporciona es estadística.
+\end{itemize}
+
+Si atendemos a la forma en la que se mide, podemos distinguir entre:
+\begin{itemize}
+	\item Software: programas instalados en el sistema.
+	\item Hardware: dispositivos físicos de medida (la sobrecarga es menor).
+	\item Híbridos: mezcla de los dos anteriores.
+\end{itemize}
+
+Por último, podemos clasificar los monitores según si existe interacción con el usuario:
+
+\begin{itemize}
+	\item No existe: la consulta de los resultados se realiza mediante otra herramienta independiente al proceso de monitorización (monitores por lotes o en segundo plano).
+	\item Sí existe. Durante el proceso de monitorización se pueden consultar los valores y/o interactuar con ellos realizando representaciones gráficas, modificando parámetros del monitor, etc. (monitores en primer plano o interactivos).
+\end{itemize}
+
+Los atributos que caracterizan a un monitor son:
+
+\begin{itemize}
+	\item \textbf{Exactitud} de la medida (\textit{accuracy, offset}). ¿Cuánto se aleja el valor medido del valor real?
+	\item \textbf{Precisión}. ¿Cuál es la dispersión de las medidas?
+	\item \textbf{Resolución} del sensor. ¿Cuánto tiene que cambiar el valor a medir para detectar un cambio?
+	\item \textbf{Tasa máxima de entrada} (\textit{max input rate}). ¿Cuál es la frecuencia máxima que el monitor puede observar? (monitores por eventos).
+	\item \textbf{Período de muestreo} (\textit{sampling time}). ¿Cada cuánto tiempo tomamos la medida? (monitores por muestreo).
+	\item \textbf{Anchura de entrada} (\textit{input width}). ¿Cuánta información se almacena por cada medida tomada?
+	\item \textbf{Sobrecarga} (\textit{overhead}). ¿Qué recursos le "roba" en monitor al sistema?
+	\[
+		Sobrecarga_{recurso}(\%) = \frac{Uso\ del\ recurso\ por\ parte\ del\ monitor}{Capacidad\ total\ del\ recurso} \times 100
+	\]
+	Ejemplo: calcular la sobrecarga de CPU de un monitor softwre por muestreo. El monitor se activa cada 5 s y cada activación usa la CPU durante 6 ms.
+	\[
+		Sobrecarga_{CPU}(\%) = \frac{6 \times 10^{-3} s}{5 s} \times 100 = 0.12\%
+	\]
 \end{itemize}
 
 \subsection{Monitorización a nivel de sistema}
