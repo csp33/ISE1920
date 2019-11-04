@@ -977,7 +977,7 @@ En esta sesión instalaremos el servicio \textit{ssh} en Ubuntu. SSH es un proto
 	\begin{lstlisting}
 		Host $> ssh 192.168.56.105 -l csp
 	\end{lstlisting}
-	Si en alguna ocasión nos hemos conectado a esa máquina mediante SSH, tendremos que eliminar el correspondiente contenido de \textit{~/.ssh/known\_hosts} mediante
+	Si en alguna ocasión nos hemos conectado a esa máquina mediante SSH, tendremos que eliminar el correspondiente contenido de \textit{\~{}/.ssh/known\_hosts} mediante
 	\begin{lstlisting}
 		Host $> ssh-keygen -f "~/.ssh/known_hosts" -R "192.168.56.105"
 	\end{lstlisting}
