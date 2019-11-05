@@ -43,6 +43,11 @@
 	\end{center}
 }
 
+\lstset{
+  breaklines=true,
+  postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+}
+
 
 \title{Ingeniería de Servidores}
 \setlength{\droptitle}{10em}
@@ -1199,6 +1204,89 @@ Los atributos que caracterizan a un monitor son:
 
 \subsection{Monitorización a nivel de sistema}
 
+Unix dispone de un directorio (\textit{/proc}) que es muy importante para la monitorización:
+\begin{itemize}
+	\item Es una carpeta en RAM que facilita el acceso del usuario a las estructuras de datos del SO.
+	\item Podemos acceder a multitud de información sobre el SO:
+	\begin{itemize}
+		\item Global: \textit{loadavg, uptime, meminfo, mdinfo}, etc.
+		\item Sobre cada proceso \textit{/proc/<pid>}.
+		\item Parámetros del kernel (\textit{/proc/sys}).
+	\end{itemize}
+\end{itemize}
+La mayoría de monitores utilizan este directorio como fuente de información.
+
+\subsubsection{Uptime}
+Indica el tiempo que el sistema lleva en marcha y la carga media que soporta.
+\begin{lstlisting}
+	$> uptime
+<hora actual> up <tiempo en marcha>,  <numero de usuarios>,  load average: <ultimo minuto>, <ultimos 5 minutos>, <ultimos 15 minutos>
+\end{lstlisting}
+Por ejemplo:
+\begin{lstlisting}
+	$> uptime
+	17:53:58 up 11 min,  1 user,  load average: 1,59, 1,15, 0,67
+\end{lstlisting}
+
+\subsubsection{Carga del sistema Unix}
+
+En Unix los procesos pueden encontrarse en los siguientes estados:
+\begin{itemize}
+	\item \textbf{En ejecución} (\textit{running}) o en la cola de ejecución (\textit{runnable}).
+	\item \textbf{Bloqueado} (\textit{I/O blocked}), está esperando una operación de E/S.
+	\item \textbf{Durmiendo} (\textit{sleeping}), se está esperando un evento del usuario (por ejemplo, una pulsación de tecla)
+\end{itemize}
+La cola de procesos del núcleo (\textit{run queue}) está formada por aquellos que pueden ejecutarse (\textit{runnable + running}).\\
+
+La \textbf{carga del sistema} es el número de procesoss que hay en modo \textit{running, runnable} o \textit{I/O blocked} (en ejecución, en cola de ejecución o bloqueados por E/S).
+
+\subsubsection{Ps (\textit{process status})}
+Esta herramienta nos proporciona información sobre el estado actual de los procesos del sistema.
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\textwidth]{psaur.png}
+	\caption{ps aur}
+\end{figure}
+
+\begin{itemize}
+	\item \textbf{\textit{USER}}. Usuario que lanzó el proceso.
+	\item \textbf{\textit{\% CPU, \% MEM}}. Porcentaje de CPU y memoria usada.
+	\item \textbf{\textit{RSS}} (\textit{Resident Set Size}). Memoria ocupada por el proceso.
+	\item \textbf{\textit{STAT}}. Estado en el que se encuentra el proceso:
+	\begin{itemize}
+		\item \textbf{R (\textit{running or runnable}), D (\textit{I/O Blocked})}
+		\item \textbf{S (\textit{interruptible sleep}), T (\textit{stopped})}
+		\item \textbf{Z (\textit{zombie})}. Terminated but not dead.
+	\end{itemize}
+\end{itemize}
+
+\subsubsection{Top}
+Este comando muestra estadísticas como la carga media, procesos, consumo de memoria, etc. cada T segundos. Normalmente se ejecuta en modo interactivo (se elige el valor de T, las columnas mostradas, el orden de las filas, etc.)
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\textwidth]{top.png}
+	\caption{top}
+\end{figure}
+
+\subsubsection{vmstat (\textit{Virtual Memory Stadistics})}
+Proporciona información sobre paginación, swap, interrupciones, CPU, etc.\\
+Debemos despreciar la primera línea, ya que aporta información desde el inicio del sistema.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\textwidth]{vmstat.png}
+	\caption{vmstat}
+\end{figure}
+
+\begin{itemize}
+	\item Procesos: \textbf{r} (\textit{runnable}), \textbf{b} (\textit{I/O blocked}).
+	\item Bloques por segundos transmitidos: \textbf{bi} (\textit{blocks in}), \textbf{bo} (\textit{blocks out}).
+	\item KB/s entre memoria y disco: \textbf{si} (\textit{swapped in}), \textbf{so} (\textit{swapped out}).
+	\item \textbf{in} (\textit{interrupts per second}), \textbf{cs} (\textit{context switched per second}).
+\end{itemize}
+
+Se le pueden especificar otros argumentos para que proporcione información sobre acceso a discos (en concreto la partición swap) y otras estadísticas.
 
 \subsection{Monitorización a nivel de aplicación}
 
