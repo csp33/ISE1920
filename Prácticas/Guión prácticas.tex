@@ -1210,9 +1210,69 @@ Comencemos con Ubuntu:
       #> setsebool -P httpd_can_network_connect_db 1
     \end{lstlisting}
     \item Probamos ahora y vemos que funciona correctamente.
-
-
 \end{enumerate}
+  Vamos a ver dos herramientas interesantes: \textit{Fail2Ban} y \textit{RKHunter}. Ambas herramientas se encuentran en la release \textit{EPEL (Extra Packages Enterprise Linux)}, por lo que deberemos instalar primero la release con:
+  \begin{lstlisting}
+    #> yum install -y epel-release
+  \end{lstlisting}
+
+
+  \subsubsection{Fail2Ban}
+
+  Fail2Ban es una herramienta que se encarga de "banear" las IPs que intenten acceder a nuestra máquina y fallen más de $n$ veces (por defecto 5).
+
+  \begin{enumerate}
+    \item Comenzamos instalando la utilidad:
+    \begin{lstlisting}
+      #> yum install -y fail2ban
+    \end{lstlisting}
+    \item Activamos e iniciamos el servicio:
+    \begin{lstlisting}
+      #> systemctl enable fail2ban
+      #> systemctl start fail2ban
+    \end{lstlisting}
+    \item Podemos ver el estado del servicio mediante
+    \begin{lstlisting}
+      #> fail2ban-client status
+    \end{lstlisting}
+    \item Vamos a configurar una \textit{jail} que baneará a los usuarios que introduzcan erróneamente sus credenciales en el servicio SSH. Comenzamos creando una copia del archivo de configuración (fail2ban toma los archivos \textit{.local} como configuración, no el \textit{.conf}).
+    \begin{lstlisting}
+      #> cd /etc/fail2ban
+      #> cp jail.conf jail.local
+    \end{lstlisting}
+    \item Editamos el archivo de configuración:
+    \begin{lstlisting}
+      #> vi jail.local
+    \end{lstlisting}
+    \item Vamos a la jail de SSH:
+    \begin{lstlisting}
+      # JAILS
+      [sshd]
+    \end{lstlisting}
+    y añadimos lo siguiente bajo \textit{[sshd]}
+    \begin{lstlisting}
+      # JAILS
+      [sshd]
+      enabled=true
+      port=22022
+    \end{lstlisting}
+    \item Reiniciamos el servicio y comprobamos que la cárcel funciona intentando acceder a ssh desde el host y fallando 5 veces.
+    \item Desbaneamos al host mediante:
+    \begin{lstlisting}
+      #> fail2ban-client set sshd unban 192.168.56.1
+    \end{lstlisting}
+  \end{enumerate}
+
+  \subsubsection{RKHunter}
+
+  RKHunter (\textit{RootKit Hunter}) es una herramienta que escanea nuestro sistema en busca de amenazas como rootkits, troyanos, etc. Se instala mediante
+  \begin{lstlisting}
+            #> yum install -y rkhunter
+  \end{lstlisting}
+y se ejecuta un análisis con
+\begin{lstlisting}
+            #> rkhunter -c
+\end{lstlisting}
 
 
 
