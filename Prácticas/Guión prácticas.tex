@@ -1211,6 +1211,24 @@ Comencemos con Ubuntu:
     \end{lstlisting}
     \item Probamos ahora y vemos que funciona correctamente.
 \end{enumerate}
+
+\subsubsection{Screen}
+
+Screen es una utilidad que permite crear sesiones de shell que podemos "descolgar" de la shell principal. Esto es muy útil si dejamos algún proceso ejecutando y la sesión se cierra.\\
+El comando para instalar la herramienta es:
+
+\begin{lstlisting}
+          #> yum install -y screen
+\end{lstlisting}
+
+Los comandos más útiles son:
+\begin{enumerate}
+  \item screen: crea una nueva sesión. Para descolgarla debemos pulsar Ctrl+A+D.
+  \item screen -list: ver una lista de las sesiones abiertas junto con su PID.
+  \item screen -r $<pid>$: permite recuperar la sesión asociada a $<pid>$.
+  \item exit: permite cerrar una sesión.
+\end{enumerate}
+
   Vamos a ver dos herramientas interesantes: \textit{Fail2Ban} y \textit{RKHunter}. Ambas herramientas se encuentran en la release \textit{EPEL (Extra Packages Enterprise Linux)}, por lo que deberemos instalar primero la release con:
   \begin{lstlisting}
     #> yum install -y epel-release
