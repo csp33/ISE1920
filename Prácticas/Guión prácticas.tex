@@ -1294,6 +1294,170 @@ y se ejecuta un análisis con
 
 
 
+\section{Práctica 3: Monitorización y profiling}
+
+\subsection{Sesión 1}
+
+\subsection{Sesión 2}
+En esta sesión instalaremos Zabbix en Ubuntu y lo configuraremos para que se monitorice a sí mismo y para que monitorice a CentOS. La documentación que usaremos será \href{https://www.zabbix.com/documentation/3.4/manual}{la siguiente}.\\
+
+La idea es instalar \textit{server, frontend} y \textit{agent} en Ubuntu y \textit{agent} en CentOS. Veamos primero qué es cada componente:
+
+\begin{itemize}
+  \item \textbf{Server}. Es el proceso central del monitor. Se encarga de capturar información y enviarla a los usuarios.
+  \item \textbf{Agent}. Monitoriza activamente los recursos y aplicaciones locales. Toma estos datos y los envía al servidor para que los procese.
+  \item \textbf{Frontend}. Muestra los datos que se han tomado de forma gráfica.
+\end{itemize}
+
+\subsubsection{Instalación en Ubuntu}
+
+\begin{enumerate}
+  \item Arrancamos Ubuntu.
+  \item Descargamos e instalamos el repositorio de Zabbix para nuestra versión de Ubuntu (Xenial):
+  \begin{lstlisting}
+  $> wget https://repo.zabbix.com/zabbix/3.4/ubuntu/pool/main/z/zabbix-release/zabbix-release_3.4-1+xenial_all.deb
+  $> sudo dpkg -i zabbix-release_3.4-1+xenial_all.deb
+  $> sudo apt update
+  \end{lstlisting}
+  \item Instalamos el servidor que funciona con MySQL y el frontend:
+  \begin{lstlisting}
+  $> sudo apt install -y zabbix-server-mysql zabbix-frontend-php
+  \end{lstlisting}
+  \item Pasamos ahora a la configuración de la base de datos. Comenzamos accediendo a MySQL y creando una nueva base de datos:
+  \begin{lstlisting}
+  $> mysql -u root -p
+  mysql> create database zabbix character set utf8 collate utf8_bin;
+  mysql> grant all privileges on zabbix.* to zabbix@localhost identified by 'practicas,ISE';
+  mysql> exit;
+  \end{lstlisting}
+  \item Importamos el esquema inicial (el proceso tarda mucho, alrededor de media hora):
+  \begin{lstlisting}
+  $> zcat /usr/share/doc/zabbix-server-mysql/create.sql.gz | mysql -u zabbix -p zabbix
+  \end{lstlisting}
+  \item Accedemos al fichero de configuración:
+  \begin{lstlisting}
+  $> sudo vi /etc/zabbix/zabbix_server.conf
+  \end{lstlisting}
+  y establecemos la clave (el resto de campos vienen por defecto):
+  \begin{lstlisting}
+  DBPassword=practicas,ISE
+  \end{lstlisting}
+  \item Iniciamos y activamos el servicio:
+  \begin{lstlisting}
+  $> sudo systemctl enable zabbix-server
+  $> sudo systemctl start zabbix-server
+  \end{lstlisting}
+  \item Configuramos la zona horaria de PHP:
+  \begin{lstlisting}
+  $> sudo vi /etc/php/7.0/apache2/php.ini
+  \end{lstlisting}
+  Buscamos el texto [Date] y lo modificamos:
+  \begin{lstlisting}
+  [Date]
+  date.timezone="Europe/Madrid"
+  \end{lstlisting}
+  \item Reiniciamos el servidor web:
+  \begin{lstlisting}
+  $> sudo systemctl restart apache2
+  \end{lstlisting}
+  \item Añadimos la correspondiente regla al firewall:
+  \begin{lstlisting}
+  $> sudo ufw allow 80/tcp
+  \end{lstlisting}
+  \item Desde el host, accedemos  a \textit{192.168.56.105/zabbix} para iniciar el proceso de instalación. Pulsamos en \textit{Next} y deberíamos ver todos los flags en OK.
+  \item Pasamos al siguiente paso e introducimos la contraseña de la base de datos en el campo \textit{Password}.
+  \item Damos un nombre al servidor, por ejemplo, \textit{ZabbixUbuntu}.
+  \item Revisamos todos los cambios y los aceptamos.
+  \item Accedemos a la interfaz del frontend con las credenciales por defecto: Admin/zabbix.
+  \item Por último, instalamos, activamos y arrancamos el agente:
+  \begin{lstlisting}
+  $> sudo apt install -y zabbix-agent
+  $> sudo systemctl enable zabbix-agent
+  $> sudo systemctl start zabbix-agent
+  \end{lstlisting}
+
+\end{enumerate}
+
+\subsubsection{Instalación en CentOS}
+
+Ahora instalaremos el agente en CentOS.
+
+\begin{enumerate}
+  \item Comenzamos logueándonos como root y añadiendo el repositorio:
+  \begin{lstlisting}
+  #> rpm -ivh https://repo.zabbix.com/zabbix/3.4/rhel/7/x86_64/zabbix-release-3.4-2.el7.noarch.rpm
+  \end{lstlisting}
+  \item Instalamos el agente:
+  \begin{lstlisting}
+  #> yum install -y zabbix-agent
+  \end{lstlisting}
+  \item Activamos y arrancamos el servicio:
+  \begin{lstlisting}
+  #> systemctl enable zabbix-agent
+  #> systemctl start zabbix-agent
+  \end{lstlisting}
+  \item Vemos que al iniciar el servicio obtenemos un error relacionado con un límite de recursos. Para solucionarlo hacemos lo siguiente:
+  \begin{lstlisting}
+  #> cat /var/log/audit/audit.log | grep zabbix_agentd | grep denied | audit2allow -M zabbix_agent_setrlimit
+  #> semodule -i zabbix_agent_setrlimit
+  \end{lstlisting}
+  \item Reiniciamos el servicio y vemos que ya no tenemos errores:
+  \begin{lstlisting}
+  #> systemctl restart zabbix-agent
+  \end{lstlisting}
+  \item Añadimos la IP del servidor de Zabbix (Ubuntu) al archivo de configuración:
+  \begin{lstlisting}
+  #> vi /etc/zabbix/zabbix_agentd.conf
+  \end{lstlisting}
+  \begin{lstlisting}
+  Server=192.168.56.105
+  \end{lstlisting}
+  \item Vemos que el puerto en el que escucha el agente es el 10500, por lo que debemos abrirlo tanto en CentOS como en Ubuntu:
+  \begin{lstlisting}
+  Ubuntu $> sudo ufw allow 10050/tcp
+  CentOS #> firewall-cmd --zone=public --add-port=10050/tcp --permanent
+  CentOS #> firewall-cmd --reload
+  \end{lstlisting}
+\end{enumerate}
+
+\subsubsection{Añadir CentOS al frontend}
+
+Ahora añadiremos el host CentOS al frontend. Para ello, accedemos a la web, Configurateion, Hosts, Create Host. Establecemos su nombre e IP:
+\begin{lstlisting}
+    Host name: CentOS
+    New group: ISE
+    IP address: 192.168.56.110
+\end{lstlisting}
+
+Para finalizar, activamos la monitorización de Ubuntu haciendo click en su estado (\textit{Disabled}).
+
+\subsubsection{Monitorización de SSH y HTTP}
+
+\begin{enumerate}
+  \item Hacemos click en el host de CentOS que acabamos de crear.
+  \item Vamos a la pestaña \textit{Templates}.
+  \item Añadimos las siguientes plantillas:
+  \begin{itemize}
+    \item Template App HTTP Service
+    \item Template App SSH Service
+  \end{itemize}
+  \item Pulsamos en \textit{Add} y luego en \textit{Update}.
+  \item Debemos informar a la plantilla de SSH que servimos en el puerto 22022. Para ello, vamos a Configuration-Templates-Template App SSH Service.
+  \item Vamos a Items-SSH service is running.
+  \item En el campo \textit{Key} cambiamos
+  \begin{lstlisting}
+      net.tcp.service[ssh]
+  \end{lstlisting}
+  por
+  \begin{lstlisting}
+      net.tcp.service[ssh,,22022]
+  \end{lstlisting}
+  \item Hacemos click en \textit{Update} y reabrimos el frontend. Vemos que se nos marca el problema de conexión a SSH como resuelto en la pestaña \textit{Dashboard}.
+\end{enumerate}
+
+
+
+
 
 \newpage
 \section{Preguntas de examen}
