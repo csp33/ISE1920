@@ -1399,11 +1399,7 @@ Ahora instalaremos el agente en CentOS.
   \item Vemos que al iniciar el servicio obtenemos un error relacionado con un límite de recursos. Para solucionarlo hacemos lo siguiente:
   \begin{lstlisting}
   #> cat /var/log/audit/audit.log | grep zabbix_agentd | grep denied | audit2allow -M zabbix_agent_setrlimit
-  #> semodule -i zabbix_agent_setrlimit
-  \end{lstlisting}
-  \item Reiniciamos el servicio y vemos que ya no tenemos errores:
-  \begin{lstlisting}
-  #> systemctl restart zabbix-agent
+  #> semodule -i zabbix_agent_setrlimit.pp
   \end{lstlisting}
   \item Añadimos la IP del servidor de Zabbix (Ubuntu) al archivo de configuración:
   \begin{lstlisting}
@@ -1411,6 +1407,7 @@ Ahora instalaremos el agente en CentOS.
   \end{lstlisting}
   \begin{lstlisting}
   Server=192.168.56.105
+  ServerActive=192.168.56.105
   \end{lstlisting}
   \item Vemos que el puerto en el que escucha el agente es el 10500, por lo que debemos abrirlo tanto en CentOS como en Ubuntu:
   \begin{lstlisting}
@@ -1418,6 +1415,11 @@ Ahora instalaremos el agente en CentOS.
   CentOS #> firewall-cmd --zone=public --add-port=10050/tcp --permanent
   CentOS #> firewall-cmd --reload
   \end{lstlisting}
+  \item Por último reiniciamos el servicio:
+  \begin{lstlisting}
+  #> systemctl restart zabbix-agent
+  \end{lstlisting}
+
 \end{enumerate}
 
 \subsubsection{Añadir CentOS al frontend}
@@ -1455,6 +1457,22 @@ Para finalizar, activamos la monitorización de Ubuntu haciendo click en su esta
   \item Hacemos click en \textit{Update} y reabrimos el frontend. Vemos que se nos marca el problema de conexión a SSH como resuelto en la pestaña \textit{Dashboard}.
 \end{enumerate}
 
+\subsubsection{Instalación de \textit{zabbix\_get}}
+
+Esta utilidad nos permite realizar peticiones de datos de monitorización de una máquina a la otra. Para instalarlo, ejecutamos la siguiente orden:
+\begin{lstlisting}
+Ubuntu $> sudo apt install -y zabbix-get
+CentOS #> yum install -y zabbix-get.x86_64
+\end{lstlisting}
+
+Podemos usar \textit{zabbix\_get} para comprobar, por ejemplo, si los servicios SSHD y HTTPD están activos:
+
+\begin{lstlisting}
+Ubuntu $> zabbix_get -s 192.168.56.110 -k net.tcp.service[ssh,,22022]
+Ubuntu $> zabbix_get -s 192.168.56.110 -k net.tcp.service[http]
+CentOS $> zabbix_get -s 192.168.56.105 -k net.tcp.service[ssh,,22022]
+Ubuntu $> zabbix_get -s 192.168.56.105 -k net.tcp.service[http]
+\end{lstlisting}
 
 
 
