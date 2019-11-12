@@ -1298,7 +1298,7 @@ y se ejecuta un análisis con
 
 \subsection{Sesión 1}
 
-\subsection{Sesión 2}
+\subsection{Instalación de Zabbix}
 En esta sesión instalaremos Zabbix en Ubuntu y lo configuraremos para que se monitorice a sí mismo y para que monitorice a CentOS. La documentación que usaremos será \href{https://www.zabbix.com/documentation/3.4/manual}{la siguiente}.\\
 
 La idea es instalar \textit{server, frontend} y \textit{agent} en Ubuntu y \textit{agent} en CentOS. Veamos primero qué es cada componente:
@@ -1481,6 +1481,52 @@ Podemos usar \textit{zabbix\_get} para comprobar, por ejemplo, si los servicios 
 Ubuntu $> zabbix_get -s 192.168.56.110 -k net.tcp.service[ssh,,22022]
 Ubuntu $> zabbix_get -s 192.168.56.110 -k net.tcp.service[http]
 \end{lstlisting}
+
+\subsection{Sesión 2}
+
+En esta sesión trabajaremos con \textit{Ansible}. \textit{Ansible} es una plataforma que permite administrar computadoras distribuyendo una orden a un grupo de ordenadores que está construida sobre \textit{Python}. Por ejemplo, podríamos ejecutar un script de configuración en varias máquinas con una sola línea. Ansible es \textit{agentless}, es decir, no precisa la instalación de un agente en el cliente. Tan solo es necesario disponer del servicio SSH (y Python) y un par de claves público-privadas.
+\begin{enumerate}
+  \item Para comenzar, instalamos \textit{ansible} en el host:
+  \begin{lstlisting}
+  Host $> sudo apt install -y ansible
+  \end{lstlisting}
+  \item Como Python no está instalado en Ubuntu, lo instalamos:
+  \begin{lstlisting}
+  Ubuntu $> sudo apt install -y python
+  \end{lstlisting}
+  \item Debemos crear dos grupos de máquinas. Para ello editamos el archivo \textit{/etc/ansible/hosts}:
+  \begin{lstlisting}
+  [LosUbuntus]
+  192.168.56.105:22022
+  [LosCentOS]
+  192.168.56.110:22022
+  \end{lstlisting}
+  \item Podemos ver que se han añadido los clientes mediante:
+  \begin{lstlisting}
+  Host $> ansible all --list-hosts
+  \end{lstlisting}
+  \item Creamos las claves RSA y copiamos la pública a los clientes:
+  \begin{lstlisting}
+  Host $> ssh-keygen
+  Host $> ssh-copy-id csp@192.168.56.110 -p 22022
+  Host $> ssh-copy-id csp@192.168.56.105 -p 22022
+  \end{lstlisting}
+  \item Ejecutemos un \textit{ping} para ver que todo se ha instalado correctamente. La sintaxis de \textit{ansible} es la siguiente:
+  \begin{lstlisting}
+  Host $> ansible <group> <command>
+  \end{lstlisting}
+  en nuestro caso:
+  \begin{lstlisting}
+  Host $> ansible LosUbuntus -m ping
+  Host $> ansible LosCentOS -m ping
+  Host $> ansible all -m ping
+  \end{lstlisting}
+  \item Creemos un directorio en ambos clientes para asegurar su funcionamiento:
+  \begin{lstlisting}
+  Host $> ansible all -m command -a "mkdir /home/csp/test"
+  \end{lstlisting}
+  \item Si ejecutamos \textit{ls} en ambos clientes veremos que el directorio ha sido creado.
+\end{enumerate}
 
 
 
