@@ -1409,7 +1409,7 @@ Ahora instalaremos el agente en CentOS.
   Server=192.168.56.105
   ServerActive=192.168.56.105
   \end{lstlisting}
-  \item Vemos que el puerto en el que escucha el agente es el 10500, por lo que debemos abrirlo tanto en CentOS como en Ubuntu:
+  \item Vemos que el puerto en el que escucha el agente es el 10050, por lo que debemos abrirlo tanto en CentOS como en Ubuntu:
   \begin{lstlisting}
   Ubuntu $> sudo ufw allow 10050/tcp
   CentOS #> firewall-cmd --zone=public --add-port=10050/tcp --permanent
@@ -1457,12 +1457,22 @@ Para finalizar, activamos la monitorización de Ubuntu haciendo click en su esta
   \item Hacemos click en \textit{Update} y reabrimos el frontend. Vemos que se nos marca el problema de conexión a SSH como resuelto en la pestaña \textit{Dashboard}.
 \end{enumerate}
 
+\paragraph{Configuración de gráficas}
+
+\begin{enumerate}
+  \item En el frontend, accedemos a \textit{Configuration-Hosts}.
+  \item Entramos en la sección \textit{Graph} del host para el que vayamos a configurar la gráfica.
+  \item Damos en \textit{Create Graph}.
+  \item Le damos el nombre \textit{HTTP and SSH services} y añadimos ambos ítems.
+  \item En \textit{Dashboard-Graphs} podremos ver las gráficas creadas.
+\end{enumerate}
+
+
 \subsubsection{Instalación de \textit{zabbix\_get}}
 
-Esta utilidad nos permite realizar peticiones de datos de monitorización de una máquina a la otra. Para instalarlo, ejecutamos la siguiente orden:
+Esta utilidad nos permite realizar peticiones de datos de monitorización desde el servidor al agente. Para instalarlo, ejecutamos la siguiente orden:
 \begin{lstlisting}
 Ubuntu $> sudo apt install -y zabbix-get
-CentOS #> yum install -y zabbix-get.x86_64
 \end{lstlisting}
 
 Podemos usar \textit{zabbix\_get} para comprobar, por ejemplo, si los servicios SSHD y HTTPD están activos:
