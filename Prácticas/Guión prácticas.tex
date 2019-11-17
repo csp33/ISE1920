@@ -1298,6 +1298,47 @@ y se ejecuta un análisis con
 
 \subsection{Sesión 1}
 
+En esta sesión comprobaremos el funcionamiento de RAID en Ubuntu. Quitaremos uno de los discos de la máquina tanto en frío como en caliente y veremos su respuesta.
+\begin{enumerate}
+  \item Comenzamos restaurando la instantánea de la instalación de Ubuntu con red.
+  \item Vamos a los ajustes de almacenamiento, segundo disco y marcamos la opción de \textit{conectable en caliente}.
+  \item Arrancamos la máquina y eliminamos el disco accediento a los ajustes de almacenamiento.
+  \item Vemos que Ubuntu nos avisa de que se ha perdido la conexión al disco. Si ejecutamos \textit{lsblk} veremos que sólo hay un disco. Hemos comprobado que el sistema continúa funcional tras eliminar uno de los discos (como cabía esperar).
+  \item Ahora eliminaremos un disco en frío. Comenzamos restaurando la instantánea de red y eliminando el disco.
+  \item Arrancamos la máquina y vemos que no arranca, se queda bloqueada al intentar leer los volúmenes físicos.
+  \item Tendremos que esperar 300 segundos para que cargue \textit{initramfs}, un shell mínimo que permite realizar labores de mantenimiento.
+  \item Podemos ver información de nuestro sistema RAID mediante
+  \begin{lstlisting}
+    (initramfs)> cat /proc/mdstat
+  \end{lstlisting}
+  \item Podemos ver que RAID está inactivo. El campo \textit{Personalities} nos dice los tipos de RAID que acepta nuestra máquina.
+  \item También podemos ver el diario del sistema (\textit{journalctl}) mediante
+  \begin{lstlisting}
+    (initramfs)> dmesg
+  \end{lstlisting}
+  \item Deducimos que debemos activar RAID. Para ello ejecutamos el siguiente comando (extraído del manual):
+  \begin{lstlisting}
+    (initramfs)> mdadm --run /dev/md0
+  \end{lstlisting}
+  \item Podemos ver mediante
+  \begin{lstlisting}
+    (initramfs)> cat /proc/mdstat
+  \end{lstlisting}
+  que el RAID ya está activo.
+  \item Pulsamos Ctrl+D para arrancar el sistema y vemos que podemos iniciar sesión.
+  \item Ahora toca añadir un nuevo disco al RAID. Comenzamos añadiéndolo en las opciones de almacenamiento.
+  \item Comprobamos mediante \textit{lsblk} que se ha añadido el nuevo disco a la máquina.
+  \item Ahora lo añadimos al RAID:
+  \begin{lstlisting}
+    $> sudo mdadm --add /dev/md0 /dev/sdb
+  \end{lstlisting}
+  \item Podemos ver el proceso de clonado de los discos mediante:
+  \begin{lstlisting}
+    $> watch cat /proc/mdadm
+  \end{lstlisting}
+  \item Por último, cuando termine el proceso podemos comprobar que todo está configurado correctamente mediante \textit{lsblk}.
+\end{enumerate}
+
 \subsection{Instalación de Zabbix}
 En esta sesión instalaremos Zabbix en Ubuntu y lo configuraremos para que se monitorice a sí mismo y para que monitorice a CentOS. La documentación que usaremos será \href{https://www.zabbix.com/documentation/3.4/manual}{la siguiente}.\\
 
