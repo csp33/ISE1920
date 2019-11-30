@@ -1573,6 +1573,79 @@ En esta sesión trabajaremos con \textit{Ansible}. \textit{Ansible} es una plata
 
 
 \newpage
+
+\section{Práctica 4: Benchmarking y Ajuste del Sistema}
+
+\subsection{Sesión 1}
+
+En esta sesión instalaremos la suite de benchmarking \textit{phoronix} y ejecutaremos dos tests sobre Ubuntu y CentOS para comparar su rendimiento. También ejecutaremos \textit{ab} (Apache Benchmark) desde el host para evaluar el rendimiento de las máquinas al responder peticiones HTTP.
+
+\begin{enumerate}
+  \item Comenzamos instalando la suite en las máquinas:
+  \begin{lstlisting}
+    CentOS #> yum install -y phoronix-test-suite
+    Ubuntu $> sudo apt install -y phoronix-test-suite php-zip
+  \end{lstlisting}
+  \item Podemos ver los tests disponibles mediante:
+  \begin{lstlisting}
+    $> phoronix-test-suite list-available-tests
+  \end{lstlisting}
+  \item Elegimos dos y los ejecutamos mediante:
+  \begin{lstlisting}
+    $> phoronix-test-suite benchmark <nombre del test>
+  \end{lstlisting}
+  En mi caso:
+  \begin{lstlisting}
+    $> phoronix-test-suite benchmark pts/ramspeed
+    $> phoronix-test-suite benchmark pts/sudokut
+  \end{lstlisting}
+  \item Se nos pedirá nuestra clave para instalar las dependencias. La introducimos y pulsamos Enter. No se mostrará ninguna salida hasta que no se instalen todas.
+  \item Elegimos las opciones deseadas del test y le damos nombre, ID y descripción.
+  \item El test comenzará a ejecutarse. Cuando termine, podremos ver los resultados. En mi caso, Ubuntu saca mejor puntuación en ambos.
+\end{enumerate}
+Pasemos ahora a Apache Benchmark:
+\begin{enumerate}
+  \item Comenzamos instalando \textit{apache2} en nuestro host:
+  \begin{lstlisting}
+    Host $> sudo apt install -y apache2
+  \end{lstlisting}
+  \item La sintaxis de la herramienta es la siguiente:
+  \begin{lstlisting}
+    Host $> ab -n <peticiones> -c <peticiones concurrentes> <host>
+  \end{lstlisting}
+  Por ejemplo:
+  \begin{lstlisting}
+    Host $> ab -n 1000 -c 100 192.168.56.105/
+    Host $> ab -n 1000 -c 100 192.168.56.110/
+  \end{lstlisting}
+  Si no añadimos la barra al final del host el benchmark no se ejecutará.
+  \item Cuando termine, podremos ver varias métricas. La que nos interesa es el tiempo medio de respuesta, \textit{Time per request (mean)}. En mi caso, Ubuntu es más rápido que CentOS.
+\end{enumerate}
+
+También podemos ejecutar los tests desde un contenedor de Docker:
+\begin{enumerate}
+  \item Comenzamos instalando Docker:
+  \begin{lstlisting}
+    $> curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+    $> sudo add-apt-repository"deb [arch=amd64] https://download.docker.com/linux/ubuntu$(lsb_release -cs) stable"
+    $> sudo apt update
+    $> sudo apt install docker-ce
+    $> sudo usermod -aG $USER
+  \end{lstlisting}
+  \item Cerramos sesión y volvemos a loguearnos.
+  \item Descargamos y arrancamos el contenedor de phoronix:
+  \begin{lstlisting}
+    $> docker run phoronix/pts
+  \end{lstlisting}
+  \item Ejecutamos los tests:
+\end{enumerate}
+
+\subsection{Sesión 2}
+En esta sesión usaremos jMeter para hacer pruebas de estrés contra una API REST (https://github.com/davidPalomar-ugr/iseP4JMeter).
+
+
+
+
 \section{Preguntas de examen}
 \subsection{Práctica 1}
 \begin{enumerate}
