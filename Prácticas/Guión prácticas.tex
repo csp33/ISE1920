@@ -1642,6 +1642,121 @@ También podemos ejecutar los tests desde un contenedor de Docker:
 
 \subsection{Sesión 2}
 En esta sesión usaremos jMeter para hacer pruebas de estrés contra una API REST (https://github.com/davidPalomar-ugr/iseP4JMeter).
+\begin{enumerate}
+  \item Comenzamos descargando la utilidad desde \href{http://apache.rediris.es//jmeter/binaries/apache-jmeter-5.2.1.zip}{aquí} en nuestro host. La descomprimimos y la abrimos:
+  \begin{lstlisting}
+    Host $> java -jar <path de la app>/bin/ApacheJMeter.jar
+  \end{lstlisting}
+  \item Instalamos Docker en Ubuntu.
+  \item Descargamos la aplicación en Ubuntu:
+  \begin{lstlisting}
+    Ubuntu $> git clone https://github.com/davidPalomar-ugr/iseP4JMeter.git
+  \end{lstlisting}
+  \item Nos situamos en la carpeta del proyecto y levantamos los contenedores:
+  \begin{lstlisting}
+    Ubuntu $> cd iseP4JMeter
+    Ubuntu $> docker-compose up -d
+  \end{lstlisting}
+  \item Comprobamos que la app funciona ejecutando el script \textit{pruebaEntorno.sh}.
+  \begin{lstlisting}
+    Ubuntu $> sh pruebaEntorno.sh
+  \end{lstlisting}
+  \item Comenzamos a crear el plan de pruebas en JMeter:
+  \item Establecemos las variables HOST y PORT en el plan de pruebas:
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{jmeter/planpruebas}
+  \end{figure}
+  \item Creamos unos valores por defecto para la petición HTTP: botón derecho en Plan de Pruebas, Añadir, Elemento de Configuración, Valores por defecto para petición HTTP. Configuramos el host y el puerto referenciando a las variables ya definidas.
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{jmeter/httpdefault}
+  \end{figure}
+  \item Creamos la autenticación para la API: Plan de Pruebas, Añadir, Elemento de Configuración, Gestor de Autorización HTTP. Configuramos:
+  \begin{itemize}
+    \item URL base: http://\$\{HOST\}:\$\{PORT\}/api/v1/auth/login
+    \item Nombre de usuario: etsiiApi
+    \item Contraseña: laApiDeLaETSIIDaLache
+  \end{itemize}
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{jmeter/basicauth}
+  \end{figure}
+  \item Creamos el grupo de hilos de Alumnos: Plan de Pruebas, Añadir, Hilos (usuarios), Grupo de Hilos. Establecemos dos hilos.
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{jmeter/alumnos}
+  \end{figure}
+  \item Añadimos el acceso a los credenciales de alumnos almacenados en el archivo CSV. Alumnos, Añadir, Elemento de Configuración, Configuración del CSV Data Set. Establecemos la ruta del archivo CSV.
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{jmeter/credencialesalumnos}
+  \end{figure}
+  \item Creamos la petición de login del alumno. Alumnos, Añadir, Muestreador, Petición HTTP. Configuramos los siguientes campos:
+  \begin{itemize}
+    \item Método: POST
+    \item Ruta: /api/v1/auth/login
+    \item Parámetros para la petición.
+  \end{itemize}
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{jmeter/loginalumno}
+  \end{figure}
+  \item Ahora debemos extraer el token JWT. Login Alumno, Añadir, Post Procesadores, Extractor de expresiones regulares. Configuramos los siguientes campos:
+  \begin{itemize}
+    \item Nombre de referencia: token
+    \item Expresión regular: .+
+    \item Plantilla: \$0\$
+  \end{itemize}
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{jmeter/extractjwt}
+  \end{figure}
+  \item Esperamos a la extracción del token: Alumnos, Añadir, Temporizador, Temporizador Aleatorio Gaussiano.
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{jmeter/temporizador}
+  \end{figure}
+  \item Añadimos la petición para recuperar los datos del alumno. Alumnos, Añadir, Muestreador, Petición HTTP. Configuramos los siguientes campos:
+  \begin{itemize}
+    \item Método: GET
+    \item Ruta: /api/v1/alumnos/alumno/\$\{\_\_urlencode(\$\{login\})\} . La función \textit{\_urlencode} se utiliza para traducir caracteres como la \textit{@} a un formato aceptado por HTTP.
+    \item Parámetro \textit{login} para la petición.
+  \end{itemize}
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{jmeter/recuperardatosalumno}
+  \end{figure}
+  \item Añadimos un gestor de cabecera para el token: Alumnos, Añadir, Elemento de Configuración, Gestor de Cabecera HTTP.
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{jmeter/httpheader}
+  \end{figure}
+  \item Creamos ahora el hilo de administradores igual que el de alumnos.
+  \item Añadimos la configuración del dataset con los credenciales de administrador seleccionando el CSV correspondiente.
+  \item Creamos la petición de login para el administrador, la extracción del token JWT y la espera igual que en alumnos.
+  \item Creamos la petición para el logueo del acceso de los administradores. Administradores, Añadir, Muestreador, Muestreador de Acceso a Log. Establecemos los siguientes campos:
+  \begin{itemize}
+    \item Protocolo: http
+    \item Servidor: \$\{HOST\}
+    \item Puerto: \$\{PORT \}
+    \item Archivo de log.
+  \end{itemize}
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{jmeter/accesoadministradores}
+  \end{figure}
+  \item Añadimos el gestor de cabecera HTTP al acceso de administradores (igual que en alumnos).
+  \item Añadimos un temporizador aleatorio gaussiano al grupo de hilos de administradores.
+  \item Añadimos los gráficos. Plan de Pruebas, Añadir, Receptor:
+  \begin{itemize}
+    \item Reporte resumen.
+    \item Ver resultados en árbol.
+    \item Informe agregado.
+    \item Árbol de resultados.
+  \end{itemize}
+  \item Damos al icono de Play y tras 10 segundos a STOP. En el reporte resumen tendremos que tener todos los errores al 0\%.
+\end{enumerate}
 
 
 
