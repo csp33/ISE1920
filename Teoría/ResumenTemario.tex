@@ -1288,7 +1288,85 @@ Debemos despreciar la primera línea, ya que aporta información desde el inicio
 
 Se le pueden especificar otros argumentos para que proporcione información sobre acceso a discos (en concreto la partición swap) y otras estadísticas.
 
-\subsection{Monitorización a nivel de aplicación}
+\subsection{Monitorización a nivel de aplicación (profiling)}
+
+El objetivo de un \textit{profiler} es monitorizar la actividad generada por una aplicación para obtener información con la que optimizar su código. La información que puede proporcionar un \textit{profiler} puede ser la siguiente:
+\begin{itemize}
+	\item ¿Cuánto tiempo tarda en ejecutarse el programa? ¿Qué parte de ese tiempo es del usuario, del sistema? ¿Cuánto se invierte en operaciones de E/S?
+	\item ¿En qué parte del código se pasa la mayor parte del tiempo (\textit{hot spots})?
+	\item ¿Cuántas veces se ejecuta una línea?
+\end{itemize}
+\subsubsection{time}
+El programa \textit{/usr/bin/time} mide el tiempo de ejecución de un programa y muestra algunas estadísticas:
+\begin{itemize}
+	\item \textit{real}: tiempo total usado por el sistema.
+	\item \textit{user}: tiempo de CPU ejecutando en modo usuario.
+	\item \textit{sys}: tiempo de CPU ejecutando código del sistema.
+	\item Cambios de contexto voluntarios (al tener que esperar a una operación de E/S se cede la CPU a otro proceso).
+	\item Cambios de contexto involuntarios}: se acaba la rodaja de tiempo.
+	\item \textit{Major page faults}: requieren acceder a disco.
+\end{itemize}
+
+\subsubsection{gprof}
+Da información sobre el tiempo de CPU y número de veces que se ejecuta cada función de un proceso o hilo en un sistema Unix. Se utiliza de la siguiente forma:
+\begin{enumerate}
+	\item Compilamos el programa con los flags de profiling y depuración:
+	\begin{lstlisting}
+		$> gcc prog.c -o prog -pg -g
+	\end{lstlisting}
+	\item Ejecutamos el programa:
+	\begin{lstlisting}
+		$> ./prog
+	\end{lstlisting}
+	\item La información se almacena en el fichero \textit{gmon.out}.
+	\item Visualizamos la información con
+	\begin{lstlisting}
+		$> gprof prog
+	\end{lstlisting}
+\end{enumerate}
+
+\subsubsection{gcov}
+
+Aporta información sobre el número de veces que se ejecuta cada línea del programa. Se usa de la siguiente forma:
+
+\begin{enumerate}
+	\item Compilamos con los siguientes flags:
+	\begin{lstlisting}
+		$> gcc prog.c -o prog -fprofile-arcs -ftest-coverage
+	\end{lstlisting}
+	\item Ejecutamos el programa:
+	\begin{lstlisting}
+		$> ./prog
+	\end{lstlisting}
+	\item La información se almacena en varios ficheros.
+	\item Visualizamos la información con
+	\begin{lstlisting}
+		$> gcov prog.c
+	\end{lstlisting}
+\end{enumerate}
+
+\subsubsection{Perf}
+
+\textit{Perf} es un conjunto de herramientas para analizar el rendimiento en Linux. Permiten analizar el rendimiento de un hilo. un proceso y sus hijos, todos los procesos que se ejecutan en una CPU o todos los que se ejecutan en el sistema.
+
+\subsubsection{Valgrind}
+
+Es un conjunto de herramientas para el análisis y la mejora del código. Puede analizar cualquier binario ya compilado (no requiere flags específicos). Básicamente crea una máquina virtual que emula la ejecución del programa en un entorno aislado.
+
+\subsubsection{V-Tune (Intel) y CodeXL (AMD)}
+
+Ofrecen información muy similar a la de Perf. Están disponibles tanto para Windows como para Linux. Se pueden usar también como depuradores.
+
+\section{Tema 4: Análisis comparativo del rendimiento}
+
+
+
+
+
+
+
+
+
 
 
 
