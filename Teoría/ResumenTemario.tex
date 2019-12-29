@@ -347,9 +347,9 @@ La mejora dekl tiempo de respuesta no es ilimitada, por lo que debemos saber hac
 \subsubsection{Ley de Amdahl}
 ¿Cuál es la ganancia en velocidad ($S$) del sistema después de mejorar $k$ veces un componente?
 \begin{figure}[H]
-	\begin{equation}
+	\begin{equation*}
 		S=\frac{1}{1-f+\frac{f}{k}}
-	\end{equation}
+	\end{equation*}
 	\caption{Ley de Amdahl}
 \end{figure}
 Donde:
@@ -1288,6 +1288,26 @@ Debemos despreciar la primera línea, ya que aporta información desde el inicio
 
 Se le pueden especificar otros argumentos para que proporcione información sobre acceso a discos (en concreto la partición swap) y otras estadísticas.
 
+\subsubsection{sar (\textit{System Activity Recorder})}
+Es una herramienta del paquete \textit{systat}. Proporciona información general sobre todo el sistema a partir de la obtenida del directorio \textit{/proc}. Está formado por dos componentes:
+\begin{itemize}
+	\item sadc (\textit{system-accounting data collector}). Recoge los datos y construye un registro binario.
+	\item sar: lee los datos binarios y los traduce a textoi plano.
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\textwidth]{sar.png}
+	\caption{sar}
+\end{figure}
+
+\subsubsection{Otras herramientas de \textit{systat}}
+\begin{itemize}
+	\item \textbf{mpstat}. Muestra estadísticas concretas por cada núcleo.
+	\item \textbf{iostat}. Muestra estadísticas de los dispositivos de E/S y particiones de disco.
+\end{itemize}
+
+
 \subsection{Monitorización a nivel de aplicación (profiling)}
 
 El objetivo de un \textit{profiler} es monitorizar la actividad generada por una aplicación para obtener información con la que optimizar su código. La información que puede proporcionar un \textit{profiler} puede ser la siguiente:
@@ -1303,9 +1323,10 @@ El programa \textit{/usr/bin/time} mide el tiempo de ejecución de un programa y
 	\item \textit{user}: tiempo de CPU ejecutando en modo usuario.
 	\item \textit{sys}: tiempo de CPU ejecutando código del sistema.
 	\item Cambios de contexto voluntarios (al tener que esperar a una operación de E/S se cede la CPU a otro proceso).
-	\item Cambios de contexto involuntarios}: se acaba la rodaja de tiempo.
+	\item Cambios de contexto involuntarios: se acaba la rodaja de tiempo.
 	\item \textit{Major page faults}: requieren acceder a disco.
 \end{itemize}
+No debemos confundir \textit{/usr/bin/time} con \textit{time}, que es una versión ligera que nos da mucha menos información (sólo \textit{real}, \textit{user} y \textit{sys}).
 
 \subsubsection{gprof}
 Da información sobre el tiempo de CPU y número de veces que se ejecuta cada función de un proceso o hilo en un sistema Unix. Se utiliza de la siguiente forma:
@@ -1358,6 +1379,257 @@ Es un conjunto de herramientas para el análisis y la mejora del código. Puede 
 Ofrecen información muy similar a la de Perf. Están disponibles tanto para Windows como para Linux. Se pueden usar también como depuradores.
 
 \section{Tema 4: Análisis comparativo del rendimiento}
+
+\subsection{Índices clásicos de rendimiento}
+
+Un buen índice de rendimiento para un sistema informático debe cumplir las siguientes características:
+\begin{itemize}
+	\item Representatividad y fiabilidad. Si un sistema presenta un índice de rendimiento mayor que otro es porque siempre el rendimiento del primero es mejor.
+	\item Repetibilidad. Siempre que se mida el índice en las mismas condiciones el valor deberá ser el mismo.
+	\item Consistencia y facilidad de medición. El índice debe poder medirse en cualquier sistema informático y la medida debe ser fácil de tomar.
+	\item Linealidad: si el índice de rendimiento aumenta, el rendimiento del sistema también debe aumentar en la misma proporción.
+\end{itemize}
+
+\subsubsection{Tiempo de ejecución, frecuencia de reloj y CPI}
+$
+T_{ejec}=NI \times CPI \times T_{reloj}=\frac{NI \times CPI}{f_{reloj}}
+$
+No son buenos índices de rendimiento ya que se pueden encontrar sistemas con peores frecuencias o CPI pero con mejores prestaciones. El tiempo de ejecución tampoco es un buen índice, ya que:
+\begin{itemize}
+	\item Consistencia: el programa debería estar descrito en un lenguaje de alto nivel.
+	\item Repetibilidad: el programa debería ejecutarse en un entorno muy controlado.
+	\item Representatividad y fiabilidad: depende del programa que se ejecute.
+\end{itemize}
+
+\subsubsection{MIPS}
+$
+MIPS=\frac{NI}{T_{ejec} \times 10^6}=\frac{f_{reloj}}{CPI \times 10^6}
+$
+Desventajas: depende del número de instrucciones y los MIPS pueden variar entre programas en la misma máquina.
+
+\subsubsection{MFLOPS}
+
+Está basado en operaciones, no en instrucciones.
+$
+MFLOPS=\frac{Operaciones_{float}}{T_{ejec} \times 10^6}
+$
+Inconvenientes:
+\begin{itemize}
+	\item No todas las operaciones en coma flotante tienen la misma complejidad, por lo que debemos ponderar cada operación multiplicándola por un peso.
+	\item El formato de los números en coma flotante puede variar de una arquitectura a otra, por lo que la precisión puede variar también.
+\end{itemize}
+Conclusión final: no existe un índice de rendimiento perfecto. Nos contentaremos con el tiempo de ejecución ($t_{ejec}$) de un programa o conjunto de programas, por lo que el resultado dependerá de la carga del PC.
+
+\subsection{Benchmarking}
+
+Un modelo de carga es una aproximación de la carga que recibe un sistema informático. El modelo de carga debe ser lo más representativo y simple posible. Existen dos estrategias para obtener modelos de carga:
+\begin{itemize}
+	\item Ajustar un modelo paramétrico personalizado (caracterización de la carga).
+	\item Usar programas de prueba que utilicen un modelo genérico de carga lo más similar posible al que se quiere reproducir (referenciación, benchmarking).
+\end{itemize}
+
+\subsubsection{Tipos de benchmarks}
+
+Los benchmarks se pueden clasificar:
+\begin{itemize}
+	\item Según la estrategia de medida
+	\begin{itemize}
+		\item Programas que miden el tiempo necesario para ejecutar una cantidad prefijada de tareas (la mayoría).
+		\item Programas que miden la cantidad de tareas ejecutadas en un tiempo prefijado.
+		\item Programas que permiten variar tanto la cantidad de tareas como el tiempo para adaptarlos a cada sistema.
+	\end{itemize}
+	\item Según la generalidad del test:
+		\begin{itemize}
+			\item Microbenchmarks o benchmarks para componentes. Estresan componentes concretos.
+			\item Macrobenchmarks o benchmarks de sistema completo o aplicación real. Intentan imitar situaciones reales.
+		\end{itemize}
+\end{itemize}
+
+\subsection{Análisis de los resultados de un test de rendimiento}
+
+El rendimiento es una variable multidimensional, por lo que debería expresarse mediante varios índices. Sin embargo, las comparaciones son más sencillas si se usa un único índice de rendimiento.\\
+
+Para unificar los índices podemos seleccionar el mejor o bien tenerlos todos en cuenta utilizando algún tipo de media.
+
+\subsubsection{Media aritmética}
+
+\begin{equation*}
+	\overline{t}=\frac{1}{n}\sum{t_k}
+\end{equation*}
+
+Si las medidas no tienen igual importancia, podemos asociar a cada medida $t_k$ un peso $w_k$, obteniendo la \textbf{media aritmética ponderada}:
+\begin{equation*}
+	\overline{t_w}=\frac{1}{n}\sum{w_k \times t_k}
+\end{equation*}
+
+El peso puede ser inversamente proporcional al tiempo de ejecución de una máquina de referencia:
+\begin{equation*}
+	w_k=\frac{C}{t_k^{ref}}
+\end{equation*}
+\begin{equation*}
+	C=\frac{1}{\sum{\frac{1}{t_k^{ref}}}}
+\end{equation*}
+
+\subsubsection{Media geométrica}
+
+\begin{equation*}
+	\overline{S_g}=\sqrt[n]{\prod{S_k}}=(\prod{S_k})^{\frac{1}{n}}
+\end{equation*}
+
+Propiedad: cuando las medidas son ganancias en velocidad (speedups) con respecto a una máquina de referencia, este índice mantiene el mismo orden en las comparaciones independientemente de la máquina de referencia elegida. Esta propiedad se usa en los benchmarks SPEC y SYSMARK.
+
+\begin{equation*}
+	SPEC(M)=\sqrt[n]{\frac{t_{1}^{ref}}{t_{1}^{M}} \times \frac{t_{2}^{ref}}{t_{2}^{M}} \times ... \times \frac{t_{n}^{ref}}{t_{n}^{M}}} = \frac{\sqrt[n]{t_{1}^{ref} \times t_{2}^{ref} \times ... \times t_{n}^{ref}}}{\sqrt[n]{t_{1}^{M} \times t_{2}^{M} \times ... \times t_{n}^{M}}}
+\end{equation*}
+
+En los benchmarks elegimos la media geométrica de speedups como índice de rendimiento para premiar las mejoras sustanciales y no castigar tanto los empeoramientos. Además, no depende de la máquina de referencia.
+\newpage
+\subsection{Comparación de prestaciones en presencia de aleatoriedad}
+
+\subsubsection{Repaso de estadística: distribución normal}
+
+La distribución normal está caracterizada por la media $\mu$ y la varianza $\sigma^2$. La función de probabilidad viene dada por:
+\begin{equation*}
+	Prob(x) = \frac{1}{\sqrt{2\pi\sigma^2}}\times e^{\frac{(x-\mu)^2}{2\sigma^2}}
+\end{equation*}
+La probabilidad de obtener un elemento en el rango $[\mu - 2\sigma, \mu + 2\sigma]$ es del 95\%.\\
+\textbf{Teorema del límite central}: la suma de un conjunto grande de muestras aleatorias de cualquier distribución e independientes entre sí pertenece a una distribución normal.
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{normal.png}
+	\caption{Distribución normal con $\mu=0$ y $\sigma=1$}
+\end{figure}
+
+\subsubsection{Repaso de estadística: distribución t de Student}
+
+Si disponemos de $n$ muestras $d_i$ pertenecientes a una Normal con media $d_{real}$ y calculamos $t_{exp}$ (al que llamaremos estadístico):
+\begin{equation*}
+	t_{exp}=\frac{\overline{d}-\overline{d_{real}}}{\frac{s}{\sqrt{n}}}
+\end{equation*}
+siendo $\overline{d}$ la media muestral y $s$ la desviación típica muestral:
+\begin{equation*}
+	\overline{d}=\frac{\sum{d_i}}{n}
+\end{equation*}
+\begin{equation*}
+	s=\sqrt{\frac{\sum{(d_i-\overline{d})^2}}{n-1}}
+\end{equation*}
+y repetimos el experimento muchas veces, veremos que esos $t_{exp}$ se distribuyen según la distribución t de Student con $n-1$ grados de libertad.\\
+\textbf{Para $n>30$, la distribución normal y la t de Student coinciden.}
+
+\begin{itemize}
+	\item \textbf{Nivel o grado de significatividad ($\alpha$)}. Es el nivel de confianza que estableceremos para realizar nuestro análisis.
+	\item \textbf{P-value}. Probabilidad de obtener un valor de $|t|$ en una distribución t de Student con n grados de libertad. Si $\alpha>p-value$ rechazaremos $H_0$.
+	\item \textbf{Intervalos de confianza para $t{exp}$}. Para aceptar nuestra hipótesis nula, el valor de $t_{exp}$ debe situarse en el intervalo $[-t_{\frac{\alpha}{2},n-1}, t_{\frac{\alpha}{2},n-1}]$. Este intervalo se denomina intervalo de confianza para un nivel de significatividad $\alpha$.
+	\item \textbf{Intervalos de confianza para $\overline{d_{real}}$}. Aceptaremos la hipótesis nula si $\overline{d_{real}}$ pertenece al intervalo $[\overline{d}-\frac{s}{\sqrt{n}} \times t_{\frac{\alpha}{2},n-1}, [\overline{d}+\frac{s}{\sqrt{n}} \times t_{\frac{\alpha}{2},n-1}]$.
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{intconf.png}
+	\caption{Intervalo de confianza (en blanco)}
+\end{figure}
+
+\subsubsection{Ejemplo: test de rendimiento entre A y B}
+Ejecutamos seis programas en dos máquinas (A y B) y obtenemos los siguientes tiempos (en segundos):
+\begin{figure}[H]
+	\centering
+	\begin{tabular}{|c|c|c|c|}
+		\hline
+		Programa & $t_A$ & $t_B$ & $d_i=t_{A_i}-t_{B_i}$\\
+		\hline
+		P1 & 142 & 100 & 42 \\
+		\hline
+		P2 & 139 & 92 & 47 \\
+		\hline
+		P3 & 152 & 128 & 24\\
+		\hline
+		P4 & 112 & 82 & 30\\
+		\hline
+		P5 & 156 & 148 & 8\\
+		\hline
+		P6 & 166 & 171 & -5\\
+		\hline
+		Suma & 867 & 721 & -\\
+		\hline
+	\end{tabular}
+	\caption{Tiempos de ejecución}
+\end{figure}
+Calculamos la media muestral y la desviación típica muestral:
+\begin{equation*}
+	\overline{d}=\frac{\sum{d_i}}{n}=\frac{42+47+24+30+8+(-5)}{6}=\frac{146}{6}=24.3 seg
+\end{equation*}
+\begin{gather*}
+		s=\sqrt{\frac{\sum{(d_i-\overline{d})^2}
+		}{n-1}}=\\
+		=\sqrt{\frac{(42-24.3)^2+(47-24.3)^2+(24-24.3)^2+(30-24.3)^2+(8-24.3)^2+((-5)-24.3)^2}{6-1}} =\\ = \sqrt{\frac{1985.34}{5}}=19.9 seg
+\end{gather*}
+
+Partimos de la hipótesis nula $H_0$: las máquinas tienen rendimientos equivalentes. Esto implica que las diferencias se deben a una suma de factores aleatorios independientes. Por tanto, $d_i$ serán muestras de una normal con media cero $|overline{d_{real}}=0$. Por tanto:
+\begin{equation*}
+	t_{exp}=\frac{\overline{d}}{\frac{s}{\sqrt{n}}}=\frac{24.3 seg}{\frac{19.9 seg}{\sqrt{6}}}=2.99
+\end{equation*}
+pertenecerá a una distribución t de Student con $n-1=6-1=5$ grados de libertad.\\
+Podemos hallar la solución al problema de dos formas: intervalos de confianza o p-value.
+\paragraph{P-value}
+El P-value (probabilidad de obtener un $|t|$ mayor o igual a $2.99$ en una distribución t de Student con 5 grados de libertad) es de $0.03$. Si tomamos un nivel de confianza del 95\%, $(1-\alpha) \times 100 = 95\% \implies \alpha=0.05$. Como $\alpha=0.05 > 0.03 = p-value$, rechazamos $H_0$. Es decir, las máquinas tienen rendimientos estadísticamente diferentes. En este caso, B es $\frac{867}{721}=1.2$ veces más rápida que A para ejecutar el conjunto de programas. Si hubiéramos aceptado $H_0$, no podríamos descartar que las máquinas tuvieran rendimientos equivalentes.
+\paragraph{Intervalos de confianza}
+
+\subparagraph{Para $t_{exp}$}
+
+El valor $t_{\frac{\alpha}{2},n-1}=t_{\frac{0.05}{2},5}=t_{0.025,5}$ es $2.57$. Por tanto, el intervalo sería $[-2.57,2.57]$. Como $t_{exp}=2.99 \not \in [-2.57,2.57]$, rechazamos $H_0$.
+
+\subparagraph{Para $\overline{d_{real}}$}
+
+El intervalo sería $[\overline{d}-\frac{s}{\sqrt{n}} \times t_{\frac{\alpha}{2},n-1}, [\overline{d}+\frac{s}{\sqrt{n}} \times t_{\frac{\alpha}{2},n-1}]= [24.3 - 20.9, 24.3 + 20.9] = [3'4, 42'2]$. Como $0 \not \in [3.4, 42.2]$, rechazamos $H_0$.
+
+\subsubsection{Ejemplo 2}
+Calcular un intervalo de confianza del $95\%$ para el tiempo medio de escritura que se ha medido en $n=8$ experimentos. Dato: $t_{0.025,7}=2.36$.
+\begin{figure}[H]
+	\centering
+	\begin{tabular}{|c|c|}
+		\hline
+		Experimento & tiempo (ms)\\
+		\hline
+		1 & 835 \\
+		\hline
+		2 & 798 \\
+		\hline
+		3 & 823\\
+		\hline
+		4 & 803\\
+		\hline
+		5 & 834\\
+		\hline
+		6 & 825\\
+		\hline
+		7 & 813\\
+		\hline
+		8 & 829\\
+		\hline
+	\end{tabular}
+	\caption{Tiempos de escritura}
+\end{figure}
+
+El intervalo para la media es de la forma:
+\begin{equation*}
+	[\overline{d}-\frac{s}{\sqrt{n}} \times t_{\frac{\alpha}{2},n-1}, [\overline{d}+\frac{s}{\sqrt{n}} \times t_{\frac{\alpha}{2},n-1}]
+\end{equation*}
+
+Por tanto, calculamos los parámetros necesarios:
+\begin{itemize}
+	\item $\overline{d}=\frac{\sum{d_i}}{n}=820ms$
+	\item $s=\sqrt{\frac{\sum{(d_i-\overline{d})^2}}{n-1}}=14ms$
+	\item $(1-\alpha) \times 100 = 95 \implies \alpha=0.05$
+\end{itemize}
+
+Por tanto, el intervalo será $	[820-\frac{14}{\sqrt{8}} \times 2.36, 820+\frac{14}{\sqrt{8}} \times 2.36] = [808,832]ms$.
+
+\section{Tema 5: Análisis operacional en servidores}
+
+
+
+
+
 
 
 
@@ -1614,3 +1886,4 @@ Ofrecen información muy similar a la de Perf. Están disponibles tanto para Win
 
 
 \end{document}
+breq
