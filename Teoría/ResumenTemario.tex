@@ -253,7 +253,7 @@ De igual forma, el cambio relativo de $t_B$ con respecto a $t_A$ es del -50\% (a
 Usando el lenguaje común podríamos traducir los resultados en:
 \begin{itemize}
 	\item $t_A$ es un 100\% mayor que $t_B$ y $t_B$ es un 50\% menor que $t_A$.
-	\item $t_A$ es 2 veces mayor que $t_B$ (¡ojo! ¡¡"1 vez mayor" significa igual!!).
+	\item $t_A$ es 2 veces mayor que $t_B$ (¡ojo! ¡¡''1 vez mayor'' significa igual!!).
 \end{itemize}
 
 La velocidad de ejecución de una máquina será inversamente proporcional al tiempo que tarda en ejecutarse. Teniendo ésto en cuenta podemos definir la aceleración (\textit{speedup}) de A con respecto a B de la siguiente forma:
@@ -1144,7 +1144,7 @@ Son ubicaciones en las que se concentran los recursos informáticos necesarios p
 \begin{itemize}
 	\item \textbf{Carga} (workload). Es el conjunto de tareas que ha de realizar un sistema, todo aquello que demande recursos.
 	\item \textbf{Actividad} de un sistema. Es el conjunto de operaciones que se realizan en el sistema como consecuencia de la carga que soporta.
-	\item Un sistema informático no es "bueno" ni "malo", sino que se adapta mejor o peor a un determinado tipo de carga.
+	\item Un sistema informático no es ''bueno'' ni ''malo'', sino que se adapta mejor o peor a un determinado tipo de carga.
 	\item La actividad del sistema puede variar debido a los procesadores, la memoria, los discos, la red, etc.
 \end{itemize}
 
@@ -1192,11 +1192,11 @@ Los atributos que caracterizan a un monitor son:
 	\item \textbf{Tasa máxima de entrada} (\textit{max input rate}). ¿Cuál es la frecuencia máxima que el monitor puede observar? (monitores por eventos).
 	\item \textbf{Período de muestreo} (\textit{sampling time}). ¿Cada cuánto tiempo tomamos la medida? (monitores por muestreo).
 	\item \textbf{Anchura de entrada} (\textit{input width}). ¿Cuánta información se almacena por cada medida tomada?
-	\item \textbf{Sobrecarga} (\textit{overhead}). ¿Qué recursos le "roba" en monitor al sistema?
+	\item \textbf{Sobrecarga} (\textit{overhead}). ¿Qué recursos le ''roba'' en monitor al sistema?
 	\[
 		Sobrecarga_{recurso}(\%) = \frac{Uso\ del\ recurso\ por\ parte\ del\ monitor}{Capacidad\ total\ del\ recurso} \times 100
 	\]
-	Ejemplo: calcular la sobrecarga de CPU de un monitor softwre por muestreo. El monitor se activa cada 5 s y cada activación usa la CPU durante 6 ms.
+	Ejemplo: calcular la sobrecarga de CPU de un monitor software por muestreo. El monitor se activa cada 5 s y cada activación usa la CPU durante 6 ms.
 	\[
 		Sobrecarga_{CPU}(\%) = \frac{6 \times 10^{-3} s}{5 s} \times 100 = 0.12\%
 	\]
@@ -1626,6 +1626,161 @@ Por tanto, el intervalo será $	[820-\frac{14}{\sqrt{8}} \times 2.36, 820+\frac{
 
 \section{Tema 5: Análisis operacional en servidores}
 
+\subsection{Redes de colas de espera}
+
+Un modelo de sistema informático es una abstracción de un sistema informático real. Consta de:
+\begin{itemize}
+	\item Dispositivos (recursos): procesador, memoria, discos, etc.
+	\item Trabajos: procesos, peticiones, accesos, etc.
+\end{itemize}
+
+Normalmente un dispositivo o recurso sólo se puede usar por un trabajo a la vez. El resto de trabajos tendrán que esperar.\\
+
+Los \textbf{modelos basados en redes de colas} ofrecen una aproximación estadística del tiempo que necesita el sistema para procesar cada trabajo (tiempo de respuesta).
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{redcolas.png}
+	\caption{Red de colas}
+\end{figure}
+
+Una \textbf{red de colas} es un conjunto de estaciones conectadas entre sí. Una \textbf{estación de servicio} es una abstracción compuesta por un dispoisitivo (recurso físico) que presta un servicio y una cola de espera para los trabajos (clientes).
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{estserv.png}
+	\caption{Estación de servicio}
+\end{figure}
+
+\subsubsection{Modelo de servidor central}
+
+Es el modelo de redes de colas más utilizado para expresar el comportamiento básico de los programas en un servidor de cara a extraer información sobre el rendimiento.
+\begin{itemize}
+	\item Un trabajo que ''llega'' al servidor comienza utilizando el procesador.
+	\item Después de abandonar el procesador, el trabajo puede:
+		\begin{itemize}
+			\item Terminar (salir del servidor).
+			\item Realizar un acceso a E/S (discos, red...).
+		\end{itemize}
+		\item Tras una operación de E/S, el trabajo vuelve a visitar al procesador.
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\textwidth]{modelocentral.png}
+	\caption{Modelo de servidor central}
+\end{figure}
+
+\subsubsection{Variables que caracterizan a un trabajo en un estación de servicio}
+
+\begin{itemize}
+	\item \textbf{W}, \textit{waiting time}, tiempo de espera en cola. Tiempo desde que el trabajo solicita usar el recurso hasta que comienza a usarlo.
+	\item \textbf{S}, \textit{service time}, tiempo de servicio. Tiempo desde que el trabajo accede al recurso hasta que lo libera.
+	\item \textbf{R}, \textit{response time}, tiempo de respuesta. Suma de los tiempos anteriores (desde que el trabajo solicita usar el recurso hasta que lo libera). $R = W + S$
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.3\textwidth]{variablesestserv.png}
+	\caption{Variables de un trabajo en una estación de servicio}
+\end{figure}
+
+\subsubsection{Ejercicio}
+
+Suponga que una estación de servicio tiene un tiempo de servicio constante $S=1s$. Suponga que los trabajos llegan de la siguiente forma:
+\begin{itemize}
+	\item Durante los 5 primeros segundos no llega ninguno.
+	\item En $t=5s$ llegan $J_1$, $J_2$ y $J_3$ en ese orden.
+\end{itemize}
+Calcule los tiempos de espera en la cola y los tiempos de respuesta que experimenta cada trabajo. Calcule los valores medios de $W$ y $R$.\\
+
+El esquema sería el siguiente:
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\textwidth]{t5ej.png}
+	\caption{Esquema de la estación de servicio}
+\end{figure}
+
+Calculemos los valores:
+\begin{itemize}
+	\item $W(J_1)$. $J_1$ comienza a ejecutarse nada más llegar, por lo que $W(J_1)=0$.
+	\item $R(J_1)$= $W(J_1) + S(J_1)=1s$.
+	\item $W(J_2)$. $J_2$ comienza a ejecutarse en $t=6s$, por lo que $W(J_2)=1$.
+	\item $R(J_2)$= $W(J_2) + S(J_2)=2s$.
+	\item $W(J_3)$. $J_3$ comienza a ejecutarse en $t=7s$, por lo que $W(J_3)=2$.
+	\item $R(J_3)$= $W(J_3) + S(J_3)=3s$.
+	\item $\overline{W}=1s$.
+	\item $\overline{R}=2s$.
+\end{itemize}
+
+\subsubsection{Estaciones con más de un servidor}
+
+Son las que permiten atender más de un trabajo en paralelo:
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\textwidth]{estpar.png}
+	\caption{Tipos de estación con más de un servidor}
+\end{figure}
+
+\subsubsection{Tiempo de reflexión (Z, think time)}
+
+Es un parámetro que representa el tiempo que requiere el usuario antes de volver a lanzar una petición al servidor tras la respuesta de éste. Se suele modelar mediante una estación de servicio de tipo retardo con $S=Z$.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\textwidth]{thinktime.png}
+	\caption{Tiempo de reflexión}
+\end{figure}
+
+\subsubsection{Redes de colas cerradas}
+
+Presentan un número constante de trabajos que van recirculando por la red ($N_T$). Hay dos tipos:
+\begin{itemize}
+	\item Por lotes (\textit{batch}). No hay interacción con el usuario, los trabajos van pasando uno a uno.
+	\item Interactivas. Se espera a que el usuario vuelva a introducir los trabajos en el servidor.
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\textwidth]{cerradas.png}
+	\caption{Tipos de redes de colas cerradas}
+\end{figure}
+
+\subsubsection{Redes de colas abiertas}
+
+Los trabajos llegan a la red a través de una fuente externa no controlada. Tras ser procesados, salen de ella por uno o más sumideros. No hay retroalimentación entre sumidero y fuente.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\textwidth]{abiertas.png}
+	\caption{Red de colas abierta}
+\end{figure}
+
+\subsubsection{Redes de colas mixtas}
+
+Son una mezcla de las dos anteriores:
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\textwidth]{mixtas.png}
+	\caption{Red de colas abierta}
+\end{figure}
+
+
+\subsection{Variables y leyes operacionales}
+
+\subsection{Límites optimistas del rendimiento}
+
+\subsection{Técnicas de mejora del rendimiento}
+
+\subsection{Algoritmos de resolución de redes de colas}
+
+
+
+
+
 
 
 
@@ -1886,4 +2041,3 @@ Por tanto, el intervalo será $	[820-\frac{14}{\sqrt{8}} \times 2.36, 820+\frac{
 
 
 \end{document}
-breq
