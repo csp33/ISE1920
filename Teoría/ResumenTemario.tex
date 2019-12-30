@@ -11,6 +11,7 @@
 \usepackage{adjustbox}
 \usepackage{amsmath}
 \usepackage{centernot}
+\usepackage{mathtools}
 \usepackage{multirow}
 \usepackage[hidelinks]{hyperref}
 \usepackage{caption}
@@ -1770,6 +1771,124 @@ Son una mezcla de las dos anteriores:
 
 
 \subsection{Variables y leyes operacionales}
+
+\subsubsection{Análisis operacional}
+
+El análisis operacional es una técnica de análisis de colas que se basa en los valores medios de las variables operacionales (magnitudes medibles) del sistema informático. Nos permite calcular límites optimistas de las prestaciones del servidor.\\
+
+Las \textbf{leyes operacionales} son las relaciones que hay entre las variables operacionales.
+
+\begin{itemize}
+	\item Un servidor contiene $K$ estaciones de servicio (recursos o dispositivos),
+	\item A todo el servidor en su globalidad lo denominamos dispositivo ''cero''
+\end{itemize}
+
+\subsubsection{Variables operacionales básicas}
+
+\begin{itemize}
+	\item $\pmb{T}$. Duración del periodo de medida. Es una variable global.
+	\item $\pmb{A_i}$. Número de trabajos solicitados a la estación $i$ (llegadas, \textit{arrivals}).
+	\item $\pmb{B_i}$. Tiempo que la estación $i$ está ocupada (\textit{busy time}).
+	\item $\pmb{C_i}$. Número de trabajos completados por la estación (\textit{completions}).
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\textwidth]{varbasicas.png}
+	\caption{Variables operacionales básicas}
+\end{figure}
+
+\subsubsection{Variables operacionales deducidas}
+
+Estas variables se estiman a partir de las básicas
+\begin{itemize}
+	\item $\pmb{\lambda_i}$. Tasa media de llegada (\textit{arrival rate}) (trabajos/segundo).
+	\item $\pmb{X_i}$. Productividad media (\textit{throughput}) (trabajos/segundo).
+	\item $\pmb{S_i}$. Tiempo medio de servicio (\textit{service time}) (segundos).
+	\item $\pmb{W_i}$. Tiempo medio de espera en cola (\textit{waiting time}) (segundos).
+	\item $\pmb{R_i}$. Tiempo medio de respuesta (\textit{response time}) (segundos).
+	\item $\pmb{U_i}$. Utilización media (\textit{utilization}) (sin unidad).
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\textwidth]{vardeduc.png}
+	\caption{Variables operacionales deducidas}
+\end{figure}
+
+\begin{itemize}
+	\item $\pmb{N_i}$. Número medio de trabajos en la estación de servicio ($cola + recurso$).
+	\item $\pmb{Q_i}$. Número medio de trabajos en cola de espera (\textit{jobs in queue}). Se calcula sumando el producto del tiempo por el número de trabajos esperando en cada intervalo y dividiéndolo entre $T$:
+	\begin{equation*}
+			Q_i= \frac{\splitfrac{tiempo(t \in [0,1)) \times trabajos_{espera}(t \in [0,1) +}{ ... + tiempo(t \in [T-1,T)) \times trabajos_{espera}(t \in [T-1,T)}}{T}
+	\end{equation*}
+
+	\item $\pmb{U_i}$. Número medio de trabajos siendo servidos por el dispositivo. $U_i=N_i - Q_i$. Coincide numéricamente con la utilización media.
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\textwidth]{vardeduc2.png}
+	\caption{Variables operacionales deducidas (2)}
+\end{figure}
+
+\subsubsection{Ejercicio}
+
+Suponga que una estación de servicio tiene un tiempo de servicio constante $S=1s$. Suponga que los trabajos llegan de la siguiente forma:
+\begin{itemize}
+	\item Durante los 5 primeros segundos no llega ninguno.
+	\item En $t=5s$ llegan $J_1$, $J_2$ y $J_3$ en ese orden.
+\end{itemize}
+Para el intervalo de medida $[0,10)s$ calcule $A_i, B_i, C_i, \lambda_i, X_i, U_i, Q_i$ y $N_i$.\\
+
+El esquema sería el siguiente:
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\textwidth]{ej2.png}
+	\caption{Esquema de la estación de servicio}
+\end{figure}
+
+Calculamos las variables:
+
+\begin{itemize}
+	\item $\pmb{T}$ (período de medida) = 10 segundos.
+	\item $\pmb{A_i}$ (número de trabajos) = 3 trabajos.
+	\item $\pmb{B_i}$ (tiempo que la estación está ocupada) = 3 segundos.
+	\item $\pmb{C_i}$ (trabajos completados por la estación, salidas) = 3 trabajos.
+	\item $\pmb{\lambda_i}$ (tasa media de llegada) = $\frac{A_i}{T}=\frac{3 trabajos}{10 segundos} = 0.3$ trabajos/segundo.
+	\item $\pmb{X_i}$ (productividad media) = $\frac{C_i}{T}=\frac{3 trabajos}{10 segundos} = 0.3$ trabajos/segundo.
+	\item $\pmb{U_i}$ (utilización media) = $\frac{B_i}{T}=\frac{3 segundos}{10 segundos} = 0.3$.
+	\item $\pmb{Q_i}$ (número medio de trabajos en cola) = $\frac{5 s \times 0 tr_{espera} + 1 s \times 2 tr_{espera} + 1 s \times 1 tr_{espera}}{10 segundos} = 0.3$ tr.
+	\item $\pmb{N_i}$ (Número medio de trabajos en la estación) = $Q_i + U_i = 0.6$ tr. Coincide con la utilización media.
+\end{itemize}
+
+\subsubsection{Variables globales del servidor}
+
+\begin{itemize}
+	\item Básicas
+		\begin{itemize}
+			\item $\pmb{A_0}$. Número de trabajos solicitados al servidor (\textit{arrivals}).
+			\item $\pmb{C_0}$. Número de trabajos completados por el servidor (\textit{completions}).
+		\end{itemize}
+	\item Deducidas
+		\begin{itemize}
+			\item $\pmb{\lambda_0}$. Tasa media de llegada al servidor (\textit{arrival rate}).
+			\item $\pmb{X_0}$. Productividad media del servidor (\textit{throughput}).
+			\item $\pmb{N_0}$. Número medio de trabajos en el servidor = $N_1+N_2+...+N_k$.
+			\item $\pmb{R_i}$. Tiempo medio de respuesta del servidor (\textit{response time}).
+		\end{itemize}
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\textwidth]{varserver.png}
+	\caption{Variables globales del servidor}
+\end{figure}
+
+\subsubsection{Razón de visita y demanda de servicio}
+
+
 
 \subsection{Límites optimistas del rendimiento}
 
