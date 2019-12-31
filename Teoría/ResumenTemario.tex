@@ -5,6 +5,7 @@
 \usepackage{xcolor}
 \usepackage{colortbl}
 \usepackage{amsthm,thmtools}
+\usepackage{dirtytalk}
 \usepackage{multirow}
 \usepackage{amsmath}
 \usepackage{subcaption}
@@ -1888,7 +1889,141 @@ Calculamos las variables:
 
 \subsubsection{Razón de visita y demanda de servicio}
 
+\begin{itemize}
+	\item $\pmb{V_i}$, \textit{Visit Ratio}, ratio de visita. Proporción entre el número de trabajos completados por el servidor y la estación (dispositivo) $i$. Es como si el trabajo tuviera que ''visitar'' el dispositivo $i$ una media de $V_i$ veces antes de abandonar el servidor.
+		\begin{equation*}
+			V_i=\frac{C_i}{C_0}
+		\end{equation*}
+	\item $\pmb{D_i}$, \textit{Service Demand}, demanda de servicio media. Tiempo medio el dispositivo $i$ dedica a cada trabajo que abandona el servidor.
+		\begin{equation*}
+			D_i=\frac{B_i}{C_0}=V_i \times S_i
+		\end{equation*}
+	La demanda de servicio de una estación no tiene en cuenta la espera del trabajo en la cola.
+\end{itemize}
 
+\subsubsection{Leyes operacionales}
+
+Las variables utilizadas en el análisis operacional son \textbf{valores medios} en el intervalo $T$. Por tanto, su valor dependerá de $T$.\\
+
+Sin embargo, existe una serie de relaciones entre algunas variables operacionales que son válidas para cualquier intervalo de observación: las \textbf{leyes operacionales}.\\
+
+Estas leyes son útiles cuando se cumple la \textbf{hipótesis del equilibrio de flujo}, que establece que, en un servidor no saturado, si escogemos un intervalo de observación bastante largo se cumple que:
+\begin{itemize}
+	\item $C_0 \approx A_0$, el número de trabajos que completa un servidor coincide aproximadamente con los solicitados. Dicho de otra forma, $X_0 \approx \lambda_0$, es decir, la productividad media coincide aproximadamente con la tasa media de llegada.
+	\item $C_i \approx A_i \implies X_i \approx \lambda_i \forall i \in [1,K]$, es decir, el número de trabajos que completa cada estación coincide aproximadamente con los que se solicitan.
+\end{itemize}
+
+\subsubsection{Ley de Little}
+\begin{center}
+	\say{The long-term average number of customers in a stable system is equal to the long-term average arrival rate multiplied by the average time a customer spends in the system}
+\end{center}
+
+Es decir:
+\begin{center}
+	\say{La media de consumidores a largo plazo en un sistema estable es igual al promedio a largo plazo de la tasa de llegada multiplicado por el tiempo medio que un consumidor pasa en el sistema}
+\end{center}
+
+En lenguaje matemático:
+\begin{equation*}
+	N_o=\lambda_0 \times R_0 = X_0 \times R_0
+\end{equation*}
+
+Esta ley solo es válida cuando el servidor \textbf{no está saturado}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\textwidth]{leylittle.png}
+	\caption{Ley de Little}
+\end{figure}
+
+Lay Ley de Little se puede aplicar no solo al servidor, sino a cada estación de servicio y a cada uno de sus subniveles.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\textwidth]{little1.png}
+	\caption{Aplicación a toda una estación de servicio}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\textwidth]{little2.png}
+	\caption{Aplicación a la cola de la estación de servicio}
+\end{figure}
+
+\subsubsection{Ley de la Utilización}
+
+Relaciona la utilización de un dispositivo con el número de trabajos que es capaz de realizar por unidad de tiempo (productividad) y el tiempo que le dedica a cada uno (tiempo de servicio). Se cumple si \textbf{el servidor no está saturado}.
+
+\begin{equation*}
+	U_i=X_i \times S_i = \lambda_i \times S_i
+\end{equation*}
+
+Una consecuencia inmediata de esta ley es que la productividad media de un dispositivo es igual a la inversa de su tiempo de servicio:
+\begin{equation*}
+	U_i \leq 1 \implies X_i \leq \frac{1}{S_i} \forall i \in [0,K]
+\end{equation*}
+
+\subsubsection{Ley de flujo forzado y relación Utilización-Demanda}
+
+\textbf{Ley de flujo forzado}. Las productividades (flujos) a diferentes niveles del servidor deben ser proporcionales a la productividad global del servidor:
+\begin{equation*}
+	X_i = X_0 \times V_i = \lambda_0 \times V_i = \lambda_i
+\end{equation*}
+
+Como consecencia de esta ley, las utilizaciones de cada dispositivo son proporcionales a las demandas de servicio del mismo, siendo la constante de proporcionalidad igual a la productividad global del servidor:
+
+\begin{equation*}
+	U_i=X_0 \times D_i = \lambda_0 \times D_i
+\end{equation*}
+
+
+\subsubsection{Ejemplo}
+
+Un servidor de base de datos no saturado recibe de media 120 consultas por minuto. Sabiendo que:
+\begin{itemize}
+	\item Tiempo de respuesta del HDD principal = 48ms.
+	\item Tiempo medio de servicio = 30ms.
+	\item Productividad = 25 peticiones/segundo.
+\end{itemize}
+Calcule:
+\begin{itemize}
+	\item Número medio de trabajos en la cola de espera del HDD.
+	\begin{equation*}
+		Q_{HDD}=\lambda_{HDD} \times W_{HDD} = X_{HDD} \times (R_{HDD} - S_{HDD}) = 25 tr/s \times 0.018 s = 0.45 tr
+	\end{equation*}
+	\item ¿Cuánto tiempo, de media, consumen los accesos al HDD por cada consulta?
+	\begin{gather*}
+		D_{HDD} = \frac{B_{HDD}}{C_0}=\frac{U_{HDD}}{X_0}=\frac{X_{HDD} \times S_{HDD}}{\lambda_0}=\frac{25 tr/s \times 0.03 s/tr}{120 tr/min}=\\=0.00652 min/tr = 0.375 s/tr
+	\end{gather*}
+
+\end{itemize}
+
+\subsubsection{Ley general del tiempo de respuesta}
+
+El tiempo medio de respuesta que experimenta una petición a un servidor no saturado se puede calcular teniendo en cuenta que cada una de ellas ha tenido que ''visitar'' $V_i$ veces al dispositivo $i$, tardando una media de $R_i$ segundos:
+
+\begin{equation*}
+	R_0=\sum{V_i \times R_i}
+\end{equation*}
+
+En general,
+\begin{equation*}
+	R_0 \not = \sum{R_i}
+\end{equation*}
+
+\subsubsection{Ley del tiempo de respuesta interactivo}
+
+Se obtiene al aplicar la Ley de Little a una red cerrada de tipo interactivo. Nos dice que el tiempo de respuesta del servidor es igual a la diferencia entre el número de trabajos entre la productividad del servidor menos el tiempo de reflexión
+
+\begin{equation*}
+	R_0=\frac{N_T}{X_0} - Z
+\end{equation*}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\textwidth]{leyrespint.png}
+	\caption{Ley del tiempo de respuesta interactivo}
+\end{figure}
 
 \subsection{Límites optimistas del rendimiento}
 
@@ -1898,27 +2033,6 @@ Calculamos las variables:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Ejercicios resueltos}
 \input{EjerciciosResueltos.tex}
 
