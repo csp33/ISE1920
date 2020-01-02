@@ -1139,7 +1139,7 @@ Son ubicaciones en las que se concentran los recursos informáticos necesarios p
 	\includegraphics[width=0.5\textwidth]{cpd.jpg}
 	\caption{Centro de Procesamiento de Datos}
 \end{figure}
-
+\newpage
 \section{Tema 3. Monitorización de servicios y programas}
 
 \subsection{Concepto de monitor de actividad}
@@ -1379,7 +1379,7 @@ Es un conjunto de herramientas para el análisis y la mejora del código. Puede 
 \subsubsection{V-Tune (Intel) y CodeXL (AMD)}
 
 Ofrecen información muy similar a la de Perf. Están disponibles tanto para Windows como para Linux. Se pueden usar también como depuradores.
-
+\newpage
 \section{Tema 4: Análisis comparativo del rendimiento}
 
 \subsection{Índices clásicos de rendimiento}
@@ -1566,7 +1566,7 @@ Calculamos la media muestral y la desviación típica muestral:
 		=\sqrt{\frac{(42-24.3)^2+(47-24.3)^2+(24-24.3)^2+(30-24.3)^2+(8-24.3)^2+((-5)-24.3)^2}{6-1}} =\\ = \sqrt{\frac{1985.34}{5}}=19.9 seg
 \end{gather*}
 
-Partimos de la hipótesis nula $H_0$: las máquinas tienen rendimientos equivalentes. Esto implica que las diferencias se deben a una suma de factores aleatorios independientes. Por tanto, $d_i$ serán muestras de una normal con media cero $|overline{d_{real}}=0$. Por tanto:
+Partimos de la hipótesis nula $H_0$: las máquinas tienen rendimientos equivalentes. Esto implica que las diferencias se deben a una suma de factores aleatorios independientes. Por tanto, $d_i$ serán muestras de una normal con media cero $\overline{d_{real}}=0$. Por tanto:
 \begin{equation*}
 	t_{exp}=\frac{\overline{d}}{\frac{s}{\sqrt{n}}}=\frac{24.3 seg}{\frac{19.9 seg}{\sqrt{6}}}=2.99
 \end{equation*}
@@ -1582,7 +1582,7 @@ El valor $t_{\frac{\alpha}{2},n-1}=t_{\frac{0.05}{2},5}=t_{0.025,5}$ es $2.57$. 
 
 \subparagraph{Para $\overline{d_{real}}$}
 
-El intervalo sería $[\overline{d}-\frac{s}{\sqrt{n}} \times t_{\frac{\alpha}{2},n-1}, [\overline{d}+\frac{s}{\sqrt{n}} \times t_{\frac{\alpha}{2},n-1}]= [24.3 - 20.9, 24.3 + 20.9] = [3'4, 42'2]$. Como $0 \not \in [3.4, 42.2]$, rechazamos $H_0$.
+El intervalo sería $[\overline{d}-\frac{s}{\sqrt{n}} \times t_{\frac{\alpha}{2},n-1}, \overline{d}+\frac{s}{\sqrt{n}} \times t_{\frac{\alpha}{2},n-1}]= [24.3 - 20.9, 24.3 + 20.9] = [3'4, 42'2]$. Como $0 \not \in [3.4, 42.2]$, rechazamos $H_0$.
 
 \subsubsection{Ejemplo 2}
 Calcular un intervalo de confianza del $95\%$ para el tiempo medio de escritura que se ha medido en $n=8$ experimentos. Dato: $t_{0.025,7}=2.36$.
@@ -1614,7 +1614,7 @@ Calcular un intervalo de confianza del $95\%$ para el tiempo medio de escritura 
 
 El intervalo para la media es de la forma:
 \begin{equation*}
-	[\overline{d}-\frac{s}{\sqrt{n}} \times t_{\frac{\alpha}{2},n-1}, [\overline{d}+\frac{s}{\sqrt{n}} \times t_{\frac{\alpha}{2},n-1}]
+	[\overline{d}-\frac{s}{\sqrt{n}} \times t_{\frac{\alpha}{2},n-1}, \overline{d}+\frac{s}{\sqrt{n}} \times t_{\frac{\alpha}{2},n-1}]
 \end{equation*}
 
 Por tanto, calculamos los parámetros necesarios:
@@ -1625,7 +1625,7 @@ Por tanto, calculamos los parámetros necesarios:
 \end{itemize}
 
 Por tanto, el intervalo será $	[820-\frac{14}{\sqrt{8}} \times 2.36, 820+\frac{14}{\sqrt{8}} \times 2.36] = [808,832]ms$.
-
+\newpage
 \section{Tema 5: Análisis operacional en servidores}
 
 \subsection{Redes de colas de espera}
@@ -2027,12 +2027,484 @@ Se obtiene al aplicar la Ley de Little a una red cerrada de tipo interactivo. No
 
 \subsection{Límites optimistas del rendimiento}
 
+Todo servidor presenta alguna limitación en su rendimiento. Una de ellas es el cuello de botella. La única forma de mejorar las prestaciones del servidor de forma significativa es actuar sobre él.\\
+
+El \textbf{cuello de botella} es el dispositivo que se saturará primero ($U_i=1$) cuando aumente la carga ($\lambda_0$ será mayor).\\
+
+\begin{equation*}
+	U_i=X_0 \times D_i \stackrel{\text{\footnotesize{Si no saturado}}}{=} \lambda_0 \times D_i
+\end{equation*}
+
+Como $U_i \propto D_i$ (son proporcionales), podemos identificar el cuello de botella de un sevidor identificando \textbf{el dispositivo con mayor demanda de servicio o mayor utilización}. No es necesario llevar el servidor al límite para identificarlo.\\
+
+Como $D_i=V_i \times S_i$, podemos ver que el cuello de botella no solo depende de la velocidad del servidor ($S_i$), sino también de la carga ($V_i$).\\
+
+Denotaremos por \textit{b, bottleneck} al índice del dispositivo cuello de botella. Su demanda de servicio y su utilización vienen dadas por:
+
+\begin{equation*}
+	D_b=max(D_i) = V_b \times S_b
+\end{equation*}
+
+\begin{equation*}
+	U_b=max(U_i)=X_0 \times D_b
+\end{equation*}
+
+\subsubsection{Saturación del servidor}
+
+El servidor se satura cuando lo hace el cuello de botella, ya que será el primer dispositivo que alcance una utilización = 1 cuando aumente la carga.
+
+En saturación, el cuello de botella está al máximo de su productividad: $X_b=\frac{1}{S_b}$.\\
+En saturación, el servidor alcanza su productividad máxima: $X_0^{max}=\frac{1}{D_b}$.
+
+\subsubsection{Servidor equilibrado (\textit{balanced system})}
+
+Es aquel servidor en el que todos los dispositivos, de media, tienen la misma carga de servicio y utilización. Es decir, la carga se absorbe equitativamente. Por tanto, todos los dispositivos son cuellos de botella.
+
+\subsubsection{Límites del rendimiento de un servidor}
+
+Debemos estimar las prestaciones límite de un servidor ($R_0, X_0$) en los casos extremos de alta y baja carga.\\
+
+Básicamente debemos estimar una cota superior para la productividad y otra inferior para el tiempo de respuesta. Estas cotas se denominan \textbf{límites optimistas del rendimiento}. \\
+
+Para calcular estas cotas debemos hallar:
+\begin{itemize}
+	\item La productividad máxima del servidor ($X_0^{max}$).
+	\item El tiempo de respuesta mínimo del servidor ($R_0^{min}$).
+\end{itemize}
+
+Podemos calcular estos límites para:
+\begin{itemize}
+	\item Panificar la capacidad del servidor (\textit{capacity planning}).
+	\item Estimar cuánto puede mejorar la productividad si actuamos sobre ciertos dispositivos.
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\textwidth]{asintotas.png}
+	\caption{Localización de los límites (asíntotas)}
+\end{figure}
+
+\subsubsection{Límites optimistas: redes abiertas}
+
+El valor máximo de la productividad del servidor será aquel que sea producido por una tasa de llegada que sature el cuello de botella:
+\begin{equation*}
+	U_b=X_0 \times D_b \stackrel{\text{\footnotesize{Si no saturado}}}{=} \lambda_0 \times D_b
+\end{equation*}
+\begin{equation*}
+	\text{Si } U_b=1 \implies X_0^{max} = \frac{1}{D_b}
+\end{equation*}
+
+A partir de ese momento, una tasa de llegada mayor provocaría la saturación del servidor, por lo que la hipótesis del equilibrio de flujo no se cumpliría ($X_0$ no podría seguir a $\lambda_0$).\\
+
+El valor más optimista (mínimo) del tiempo medio de respuesta del servidor ($R_0^{min}$) será el que experimenta un trabajo cuando llegue al servidor sin que haya otros trabajos previamente.
+
+\begin{equation*}
+	R_0^{min}= \sum{V_i \times R_i^{min}} = \sum{V_i \times S_i} = \sum{D_i} \equiv D
+\end{equation*}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\textwidth]{optimistasabiertas.png}
+	\caption{Límites optimistas en redes abiertas}
+\end{figure}
+
+\textbf{Ejemplo:\\}
+
+\begin{figure}[H]
+	\centering
+	\begin{tabular}{|c|c|c|c|}
+		\hline
+		Dispositivo & $V_i$ & $S_i$ (ms) & $D_i$ (s)\\
+		\hline
+		CPU & 16 & 10 & 0.16\\
+		\hline
+		Disco A & 7 & 20 & 0.14 \\
+		\hline
+		Disco B & 8 & 30 & \textcolor{red}{0.24} \\
+		\hline
+	\end{tabular}
+\end{figure}
+
+\begin{itemize}
+	\item Tiempo de respuesta mínimo: $R_0^{min} = 0.16 + 0.14 + 0.24 = 0.54 s$.
+	\item Productividad máxima: $X_0^{max}=\frac{1}{D_b}=\frac{1}{0.24}=4.2 tr/s$.
+	\item Utilización máxima de la CPU: $U_{CPU}^{max}=X_{0}^{max} \times D_{CPU} = 0.67$.
+	\item Productividad máxima de la CPU: $X_{CPU}^{max}= X_0^{max} \times V_{CPU} = 67 tr/s$
+	\item $U_i$ con $\lambda_0=2tr/s$ ($X_0$)
+		\begin{itemize}
+			\item $U_{CPU} = X_0 \times D_{CPU} = 0.32$
+			\item $U_A = X_0 \times D_A = 0.28$
+			\item $U_B = X_0 \times D_B = 0.48$
+		\end{itemize}
+\end{itemize}
+
+\subsubsection{Límites optimistas: redes cerradas}
+
+\begin{itemize}
+	\item Para valores de carga altos ($N_T$ grande):
+		\begin{itemize}
+			\item Valor optimista de la productividad: cuando el cuello de botella esté cerca de la saturación.
+			\begin{equation*}
+				U_b= X_0 \times D_b
+			\end{equation*}
+			\begin{equation*}
+				\text{Si } U_b \rightarrow 1 \implies X_0 \rightarrow X_0^{max}=\frac{1}{D_b}
+			\end{equation*}
+		\item Valor optimista del tiempo de respuesta:
+		\begin{equation*}
+			R_0 \to \frac{N_T}{X_0^{max}}-Z = D_b \times N_T - Z
+		\end{equation*}
+		\end{itemize}
+	\item Para valores de carga bajos ($N_T$ pequeño)
+		\begin{itemize}
+			\item Valor optimista del tiempo de respuesta: cuando los trabajos siempre encuentran los dispositivos sin ocupar ($W_i=0$, por lo que $R_i=S_i$).
+			\begin{equation*}
+				R_0 \to R_0^{min} = \sum{V_i \times R_i^{min} = \sum{V_i \times S_i} = \sum{D_i} \equiv D}
+			\end{equation*}
+			\item Valor optimista de la productividad:
+			\begin{equation*}
+				X_0 \to \frac{N_T}{R_0^{min} + Z}=\frac{N_T}{D + Z}
+			\end{equation*}
+		\end{itemize}
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\textwidth]{optimistascerradas.png}
+	\caption{Límites optimistas en redes cerradas}
+\end{figure}
+
+El \textbf{punto teórico de saturación} es el valor de $N_T$ en donde todas las asíntotas coinciden:
+\begin{equation*}
+	D = D_b \times N_T^* - Z \implies N_T^* = \frac{D + Z}{D_b}
+\end{equation*}
+
+Este punto tiene varias propiedades:
+\begin{itemize}
+	\item Para un número total de trabajos $N_T > N_T^*$, los límites asintóticos vienen impuestos únicamente por el cuello de botella del servidor.
+	\item A partir de $N_T^*$ trabajos ya no podemos conseguir el tiempo de respuesta mínimo (ya que se empiezan a formar colas).
+	\item En principio podría parecer el número ideal de trabajos en la red, pero en la práctica no se puede conseguir la productividad máxima y el tiempo de respuesta mínimo absolutos del servidor.
+\end{itemize}
+
+\textbf{Ejemplo:\\}
+\begin{figure}[H]
+	\centering
+	\begin{tabular}{|c|c|c|c|}
+		\hline
+		Dispositivo & $V_i$ & $S_i$ (ms) & $D_i$ (s)\\
+		\hline
+		CPU & 5 & 1 & 5\\
+		\hline
+		Disco A & 2 & 2 & 4 \\
+		\hline
+		Disco B & 2 & 1.5 & 34 \\
+		\hline
+	\end{tabular}
+	Tiempo de reflexión $Z=18s$
+\end{figure}
+
+\begin{itemize}
+	\item Asíntotas:
+		\begin{itemize}
+			\item $R_0 \geq max(D, D_b \times N_T -Z) = max(12, 5 \times N_T -18)$
+			\item $X_0 \leq min(\frac{N_T}{D + Z}, \frac{1}{D_b}) = min(\frac{N_T}{30}, 0'2)$
+		\end{itemize}
+	\item Punto teórico de saturación:
+	\begin{equation*}
+		N_T^* = \frac{D+Z}{D_b}=\frac{12+18}{5}=6 tr
+	\end{equation*}
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\textwidth]{ejcerrada.png}
+\end{figure}
+
 \subsection{Técnicas de mejora del rendimiento}
+
+Para mejorar las prestaciones de forma significativa debemos actuar sobre el cuello de botella. Podemos hacerlo de dos formas:
+
+\begin{itemize}
+	\item Ajuste (\textit{tuning}).
+	\item Actualización (\textit{upgrading}).
+\end{itemize}
+
+\subsubsection{Ajuste (\textit{tuning})}
+
+Consiste en optimizar el comportamiento de componentes existentes (modificando frecuencias, voltajes, usar profilers, etc.).\\
+
+Problemas:
+\begin{itemize}
+	\item Posible alteración de la fiabilidad.
+	\item Hay que conocer muy bien el sistema operativo y el comportamiento de los componentes hardware.
+	\item Deberíamos realizar tests estadísticos para ver qué factores realmente influyen en las prestaciones.
+\end{itemize}
+
+\subsubsection{Actualización (\textit{upgrading})}
+
+Consiste en reemplazar dispositivos por otros más rápidos (disminuye el tiempo medio de servicio) o añadir dispositivos para poder realizar más tareas en paralelo (disminuye la razón de visita).
+
+Problemas:
+\begin{itemize}
+	\item Compatibilidad de los nuevos componentes con los existentes.
+	\item Extensibilidad/Escalabilidad del servidor.
+\end{itemize}
+
+
 
 \subsection{Algoritmos de resolución de redes de colas}
 
+Debemos conocer los siguientes datos:
+\begin{itemize}
+	\item El número de estaciones de servicio ($K$).
+	\item Para cada estación:
+		\begin{itemize}
+			\item Razón de visita media ($V_i$).
+			\item Tiempo de servicio medio ($S_i$).
+		\end{itemize}
+	\item Si la red es abierta: tasa de llegada al servidor ($\lambda_0$).
+	\item Si la red es cerrada;
+		\begin{itemize}
+			\item Número total de trabajos en la red ($N_T$).
+			\item Si la red es interactiva: tiempo medio de reflexión ($Z$).
+		\end{itemize}
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\textwidth]{algoritmos.png}
+	\caption{Algoritmos de resolución de redes de colas}
+\end{figure}
+
+\subsubsection{Hipótesis del peor escenario posible para redes abiertas en equilibrio de flujo}
+
+Cuando un trabajo llega a la estación de servicio $i$ de una red de colas abierta supondremos que para poder acceder al dispositivo tiene que esperar a que se completen todos los $N_i$ trabajos que hay en ese momento en la estación:
+\begin{equation*}
+	W_i=N_i \times S_i
+\end{equation*}
+
+Por tanto, el tiempo de respuesta dado vendra dado, en el peor escenario posible, por:
+
+\begin{equation*}
+	R_i = W_i + S_i ) N_i \times S_i + S_i
+\end{equation*}
+
+Aplicando la Ley de Little ($N_i=\lambda_i \times R_i$):
+
+\begin{equation*}
+	R_i = \lambda_i \times R_i \times S_i + S_i \implies R_i = \frac{S_i}{1 - \lambda_i \times S_i}=\frac{S_i}{1 - \lambda_0 \times V_i \times S_i}=\frac{S_i}{1-\lambda_0 \times D_i}
+\end{equation*}
+
+\subsubsection{Resolución de redes de colas abiertas}
+
+Suponemos conocidos $\lambda_0, V_i$ y $S_i$.
+
+\begin{enumerate}
+	\item Calculamos la demanda media de servicio de cada estación:
+		\begin{equation*}
+			D_i=V_i \times S_i
+		\end{equation*}
+	\item Calculamos el tiempo medio de respuesta de cada estación:
+		\begin{equation*}
+			R_i=\frac{S_i}{1 - \lambda_i \times S_i}=\frac{S_i}{1 - \lambda_0 \times D_i}
+		\end{equation*}
+	\item Calculamos el tiempo medio de respuesta del servidor:
+		\begin{equation*}
+			R_0=\sum{V_i \times R_i}=\sum{\frac{V_i \times S_i}{1 - \lambda_0 \times D_i} = \sum{\frac{D_i}{1 - \lambda_0 \times D_i}}}
+		\end{equation*}
+\end{enumerate}
+
+El resto de variables operacionales ($X_i, U_i, N_i, N_0, W_i, Q_i$, etc.) se pueden calcular mediante sus expresiones habituales.
+
+\textbf{Ejemplo:\\}
+
+\begin{figure}[H]
+	\centering
+	\begin{tabular}{|c|c|c|}
+		\hline
+		Recurso & $V_i$ & $S_i$ (s) \\
+		\hline
+		CPU & 9 & 0.010 \\
+		\hline
+		Disco & 3 & 0.020 \\
+		\hline
+		Red & 5 & 0.016 \\
+		\hline
+	\end{tabular}
+\end{figure}
+
+Suponiendo que la tasa de llegada de peticiones al servidor es de 5 peticiones/s:
+\begin{enumerate}
+	\item Calcule las demandas de servicio de cada recurso.\\
+		Como $D_i=V_i \times S_i$;
+		\begin{itemize}
+			\item $D_{CPU} = 9 \times 0.09 = 0.09$
+			\item $D_{HDD} = 3 \times 0.20 = 0.06$
+			\item $D_{RED} = 5 \times 0.16 = 0.08$
+		\end{itemize}
+	\item ¿Qué recurso es el cuello de botella? ¿Cuál es la productividad máxima del servidor? ¿Está el servidor saturado?
+		\begin{itemize}
+			\item El recurso más utilizado es la CPU, por lo que es el cuello de botella.
+			\item Productividad máxima del servidor:
+				\begin{equation*}
+					X_0^{max}=\frac{1}{D_b}=11.1 tr/s
+				\end{equation*}
+		\end{itemize}
+		Como $\lambda_0 = 5 tr/s < 11.1 tr/s = X_0^{max}$, el servidor no está saturado.
+	\item Calcule el tiempo de respuesta para el peor caso posible de cada recurso y del servidor.
+		\begin{equation*}
+			R_i=N_i \times S_i + S_i \implies R_i = \frac{S_i}{1 - \lambda_0 \times D_i}
+		\end{equation*}
+		\begin{equation*}
+			R_{CPU} = \frac{S_{CPU}}{1 - \lambda_0 \times D_{CPU}} = \frac{0.01}{1 - 5 tr/s \times 0.09 s} = 0.018 s
+		\end{equation*}
+		\begin{equation*}
+			R_{HDD} = \frac{S_{HDD}}{1 - \lambda_0 \times D_{HDD}} = \frac{0.020}{1 - 5 tr/s \times 0.06 s} =  0.029 s
+		\end{equation*}
+		\begin{equation*}
+			R_{RED} = \frac{S_{RED}}{1 - \lambda_0 \times D_{RED}} = \frac{0.016}{1 - 5 tr/s \times 0.08 s} = 0.027 s
+		\end{equation*}
+	\item Calcule el número medio de clientes conectados (trabajos) en el servidor.
+		\begin{equation*}
+			N_0 = X_0 \times R_0 = 5 tr/s \times 0.38 s = 1.9 tr
+		\end{equation*}
+	\item Calcule la utilización, tiempo medio de espera en cola y número medio de trabajos en la cola de cada recurso.
+		\begin{itemize}
+			\item $U_{CPU} = X_0 \times D_{CPU} = 5 tr/s \times 0.09 = 0.45$
+			\item $W_{CPU} = R_{CPU} - S_{CPU} = 0.018 s - 0.010 s = 0.008 s$
+			\item $Q_{CPU} = \lambda_{CPU} \times W_{CPU} = X_{CPU} \times W_{CPU} = X_0 \times V_i \times W_i = 5 tr/s \times 9 \times 0.008 = 0.37 tr$
+			\item $U_{HDD} = 0.30$
+			\item $W_{HDD} = 0.009 s$
+			\item $Q_{HDD} = 0.13 tr$
+			\item $U_{RED} = 0.40$
+			\item $W_{RED} = 0.011 s$
+			\item $Q_{RED} = 0.27 tr$
+		\end{itemize}
+\end{enumerate}
+
+\newpage
+
+\subsection{Resumen de fórmulas y variables}
+
+Subíndices:
+
+\begin{itemize}
+	\item $0$: servidor.
+	\item $i$: estación de servicio i-ésima.
+\end{itemize}
+
+Variables:
+
+\begin{itemize}
+	\item $W$: \textit{waiting time}. Tiempo de espera (s).
+	\item $S$: \textit{service time}. Tiempo de servicio (s).
+	\item $R$: \textit{response time}. Tiempo de respuesta (s).
+		\begin{equation*}
+			R = W + S
+		\end{equation*}
+	\item $Z$: \textit{think time}. Tiempo de reflexión (s).
+	\item $K$. Número de estaciones de servicio.
+	\item $T$. Duración del período de medida.
+	\item $A_i/A_0$: \textit{arrivals}. Número de trabajos solicitados a la estación/servidor.
+	\item $B_i$: \textit{busy time}. Tiempo que el dispositivo está ocupado.
+	\item $C_i/C_0$: \textit{completions}. Trabajos completados por la estación/servidor.
+	\item $\lambda_i/\lambda_0$: \textit{arrivals}. Tasa media de llegada (tr/s) a la estación/servidor.
+		\begin{equation*}
+			\lambda_i=\frac{A_i}{T}
+		\end{equation*}
+	\item $X_i/X_0$: \textit{throughput}. Productividad media de la estación/servidor (tr/s).
+		\begin{equation*}
+			X_i=\frac{C_i}{T}
+		\end{equation*}
+	\item $S_i$: \textit{service time}. Tiempo medio de servicio (s).
+		\begin{equation*}
+			S_i=\frac{B_i}{C_i}
+		\end{equation*}
+	\item $W_i$: \textit{waiting time}. Tiempo medio de espera en cola (s).
+	\item $R_i/R_0$: \textit{response time}. Tiempo medio de respuesta de la estación/servidor (s).
+		\begin{equation*}
+			R_i=W_i + S_i
+		\end{equation*}
+	\item $U_i$: \textit{utilization}. Utilización media (s).
+		\begin{equation*}
+			U_i=\frac{B_i}{T}
+		\end{equation*}
+	\item $N_i$. Número medio de trabajos en la estación de servicio (cola más recurso)
+		\begin{equation*}
+			N_i = Q_i + U_i
+		\end{equation*}
+	\item $Q_i$, \textit{jobs in queue}. Número medio de trabajos en cola de espera.
+	\item $V_i$, \textit{visit ratio}. Ratio de visita.
+		\begin{equation*}
+			V_i = \frac{C_i}{C_0}
+		\end{equation*}
+	\item $D_i$, \textit{service demand}. Demanda de servicio.
+		\begin{equation*}
+			D_i = \frac{B_i}{C_0} = V_i \times S_i
+		\end{equation*}
+\end{itemize}
+
+Leyes operacionales:
+
+\begin{itemize}
+	\item Ley de Little (sólo cuando el servidor no está saturado).
+		\begin{itemize}
+			\item Aplicada a un servidor:
+				\begin{equation*}
+					N_0 = \lambda_0 \times R_0 = X_0 \times R_0
+				\end{equation*}
+			\item Aplicada a toda la estación de servicio:
+				\begin{equation*}
+					N_i = \lambda_i \times R_i = X_i \times R_i
+				\end{equation*}
+			\item Aplicada a la cola de una estación de servicio:
+				\begin{equation*}
+					Q_i = \lambda_i \times W_i = X_i \times W_i
+				\end{equation*}
+		\end{itemize}
+		\item Ley de la Utilización (sólo cuando el servidor no está saturado).
+			\begin{equation*}
+				U_i = X_i \times S_i = \lambda_i \times S_i
+			\end{equation*}
+		\item Ley de flujo forzado (sólo cuando el servidor no está saturado).
+			\begin{equation*}
+				X_i = X_0 \times V_i = \lambda_0 \times V_i = \lambda_i
+			\end{equation*}
+		\item Relación Utilización-Demanda de servicio (sólo cuando el servidor no está saturado).
+			\begin{equation*}
+				U_i = X_0 \times D_i = \lambda_0 \times D_i
+			\end{equation*}
+		\item Ley general del tiempo de respuesta.
+			\begin{equation*}
+				R_0 = \sum{V_i \times R_i}
+				R_0 \neq \sum{R_i}
+			\end{equation*}
+		\item Ley del tiempo de respuesta interactivo.
+			\begin{equation*}
+				R_0 = \frac{N_T}{X_0} - Z
+			\end{equation*}
+\end{itemize}
+
+Cuello de botella:
+
+\begin{itemize}
+	\item $D_b = max(D_i) = V_b \times S_b$
+	\item $U_b = max(U_i) = X_0 \times D_b$
+	\item Cuando el servidor está saturado:
+		\begin{itemize}
+			\item $X_b = \frac{1}{S_b}$
+			\item $X_0^{max} = \frac{1}{D_b}$
+		\end{itemize}
+\end{itemize}
+
+\begin{equation*}
+	R_0^{min} = \sum{V_i \times R_i^{min}} =  \sum{V_i \times S_i} = \sum{D_i} \equiv D
+\end{equation*}
 
 
+
+
+\newpage
 \section{Ejercicios resueltos}
 \input{EjerciciosResueltos.tex}
 
